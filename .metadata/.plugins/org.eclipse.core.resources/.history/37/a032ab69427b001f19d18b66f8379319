@@ -1,0 +1,129 @@
+package services;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import model.Book;
+import model.Toy;
+import model.Stationary;
+import model.Person;
+import model.Product;
+
+public class Store {
+	private List<Person> users; // List of users (customers, employees, managers)
+	private List<Product> products; // List of products available in the store
+
+	public Store() {
+		users = new ArrayList<>();
+		products = new ArrayList<>();
+		initializeProducts(); // Call the method to add sample products
+	}
+
+	// Method to add a user (Person)
+	public void addUser(Person person) {
+		users.add(person);
+	}
+
+	// Method to get all users
+	public List<Person> getUsers() {
+		return users;
+	}
+
+	// Method to add a product
+	public void addProduct(Product product) {
+		products.add(product);
+	}
+
+	// Method to get all products
+	public List<Product> getProducts() {
+		return products;
+	}
+
+	// Method to search products by name
+	public List<Product> searchByName(String name) {
+		List<Product> foundProducts = new ArrayList<>();
+		for (Product product : products) {
+			if (product.getName().equalsIgnoreCase(name)) {
+				foundProducts.add(product);
+			}
+		}
+		return foundProducts;
+	}
+
+	// Method to search books by author
+	public List<Book> searchByAuthor(String author) {
+		List<Book> foundBooks = new ArrayList<>();
+		for (Product product : products) {
+			if (product instanceof Book && ((Book) product).getAuthor().equalsIgnoreCase(author)) {
+				foundBooks.add((Book) product);
+			}
+		}
+		return foundBooks;
+	}
+
+	// Method to search books by publication year
+	public List<Book> searchByPublicationYear(int year) {
+		List<Book> foundBooks = new ArrayList<>();
+		for (Product product : products) {
+			if (product instanceof Book && ((Book) product).getPublicationYear() == year) {
+				foundBooks.add((Book) product);
+			}
+		}
+		return foundBooks;
+	}
+
+	public Product getProductById(String id) {
+		for (Product product : products) {
+			if (product.getId().equals(id)) {
+				return product; // Return product if ID matches
+			}
+		}
+		return null; // Return null if no product matches
+	}
+
+	public boolean updateProductQuantity(String id, int newQuantity) {
+		for (Product product : products) {
+			if (product.getId().equals(id)) {
+				product.setQuantity(newQuantity);
+				return true; // Indicate success
+			}
+		}
+		return false; // Indicate failure (ID not found)
+	}
+
+	public boolean removeProduct(String id) {
+		Product productToRemove = getProductById(id);
+		if (productToRemove != null) {
+			products.remove(productToRemove);
+			return true; // Indicate success
+		}
+		return false; // Indicate failure (ID not found)
+	}
+
+	public void updateProduct(Product updatedProduct) {
+		for (int i = 0; i < products.size(); i++) {
+			Product product = products.get(i);
+			if (product.getId().equals(updatedProduct.getId())) {
+				products.set(i, updatedProduct);
+				return; // Exit once the product is updated
+			}
+		}
+		// Optionally, throw an exception or log if the product is not found
+	}
+
+	// Method to initialize sample products
+	private void initializeProducts() {
+		// Adding sample books
+		products.add(new Book("1", "Effective Java", 45.00, 10, "Joshua Bloch", "978-0134686097", 2018));
+		products.add(new Book("2", "Clean Code", 40.00, 8, "Robert C. Martin", "978-0136083238", 2008));
+		products.add(new Book("7", "Dirty Code", 48.00, 8, "Robert A. Martin", "978-0136993238", 2006));
+		products.add(new Book("8", "Sleep Code", 40.00, 8, "Robert B. Martin", "978-0137783238", 2009));
+		// Adding sample music discs
+		products.add(new Stationary("3", "The Dark Side of the Moon", 20.00, 20, "Pink Floyd", 10));
+		products.add(new Stationary("4", "Back in Black", 15.00, 9, "AC/DC", 10));
+
+		// Adding sample movie discs
+		products.add(new Toy("5", "Inception", 15.00, 30, "Christopher Nolan", 148));
+		products.add(new Toy("6", "The Matrix", 10.00, 15, "Lana Wachowski", 136));
+	}
+}
