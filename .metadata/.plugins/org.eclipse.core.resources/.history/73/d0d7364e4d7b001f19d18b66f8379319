@@ -1,0 +1,11 @@
+// Inside the LoginFrame constructor, after the clear button
+JButton dontLoginButton = new JButton("Don't Login");
+add(dontLoginButton);
+
+// Action listener for "Don't Login" button
+dontLoginButton.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        new StrangerFrame(store); // Open StrangerFrame
+    }
+});

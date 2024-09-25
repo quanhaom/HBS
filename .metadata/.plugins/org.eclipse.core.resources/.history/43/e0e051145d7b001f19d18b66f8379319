@@ -1,0 +1,191 @@
+package frame;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+
+import model.Book;
+import model.Product;
+import model.Stationary;
+import model.Toy;
+import services.Store;
+
+public class EmployeeFrame extends JFrame {
+    private Store store;
+    private LoginFrame loginFrame; // Reference to LoginFrame
+    private JList<String> productList; 
+    private DefaultListModel<String> productListModel; 
+    private JTextField searchField; 
+
+    public EmployeeFrame(Store store, LoginFrame loginFrame) {
+        this.store = store;
+        this.loginFrame = loginFrame; // Initialize loginFrame
+
+        setTitle("Employee Frame");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+
+        JPanel searchPanel = new JPanel();
+        searchPanel.add(new JLabel("Search:"));
+        searchField = new JTextField(20);
+        searchPanel.add(searchField);
+        JButton searchButton = new JButton("Search");
+        searchPanel.add(searchButton);
+        add(searchPanel, BorderLayout.NORTH);
+
+        productListModel = new DefaultListModel<>();
+        productList = new JList<>(productListModel);
+        productList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        add(new JScrollPane(productList), BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel();
+        JButton addProductButton = new JButton("Add Product");
+        JButton editProductButton = new JButton("Edit Product");
+        JButton removeProductButton = new JButton("Remove Product");
+        JButton logoutButton = new JButton("Logout");
+        buttonPanel.add(addProductButton);
+        buttonPanel.add(editProductButton);
+        buttonPanel.add(removeProductButton);
+        buttonPanel.add(logoutButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchProducts(searchField.getText());
+            }
+        });
+
+        addProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addProduct();
+            }
+        });
+
+        editProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editProduct();
+            }
+        });
+
+        removeProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removeProduct();
+            }
+        });
+
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logout();
+            }
+        });
+
+        loadProducts(); // Load products at startup
+    }
+
+    private void loadProducts() {
+        productListModel.clear();
+        List<Product> products = store.getProducts();
+        for (Product product : products) {
+            productListModel.addElement(getProductDisplayInfo(product));
+        }
+    }
+
+    private void searchProducts(String query) {
+        productListModel.clear();
+        List<Product> products = store.getProducts();
+
+        for (Product product : products) {
+            if (product.getId().toLowerCase().contains(query.toLowerCase())
+                    || product.getName().toLowerCase().contains(query.toLowerCase())) {
+                productListModel.addElement(getProductDisplayInfo(product));
+            }
+        }
+
+        if (productListModel.isEmpty()) {
+            productListModel.addElement("No products found.");
+        }
+    }
+
+    private String getProductDisplayInfo(Product product) {
+        return product.getId() + ": " + product.getName() + " (Price: " + product.getPrice() + ", Quantity: " + product.getQuantity() + ")";
+    }
+
+    private void addProduct() {
+        String id = JOptionPane.showInputDialog(this, "Enter Product ID:");
+        String name = JOptionPane.showInputDialog(this, "Enter Product Name:");
+        String priceStr = JOptionPane.showInputDialog(this, "Enter Product Price:");
+        String quantityStr = JOptionPane.showInputDialog(this, "Enter Quantity:");
+        String type = JOptionPane.showInputDialog(this, "Enter Product Type (Book/Toy/Stationery):");
+
+        if (id != null && name != null && priceStr != null && quantityStr != null && type != null) {
+            try {
+                double price = Double.parseDouble(priceStr);
+                int quantity = Integer.parseInt(quantityStr);
+                Product product = null;
+
+                switch (type) {
+                    case "Book":
+                        String author = JOptionPane.showInputDialog(this, "Enter Author:");
+                        String publisher = JOptionPane.showInputDialog(this, "Enter Publisher:");
+                        String isbn = JOptionPane.showInputDialog(this, "Enter ISBN:");
+                        int publicationYear = Integer.parseInt(JOptionPane.showInputDialog(this, "Enter Publication Year:"));
+                        product = new Book(id, name, price, quantity, author, isbn, publicationYear, publisher);
+                        break;
+                    case "Toy":
+                        String brand = JOptionPane.showInputDialog(this, "Enter Brand:");
+                        String material = JOptionPane.showInputDialog(this, "Enter Material:");
+                        int suitage = Integer.parseInt(JOptionPane.showInputDialog(this, "Enter Suitable Age:"));
+                        product = new Toy(id, name, price, quantity, brand, suitage, material);
+                        break;
+                    case "Stationery":
+                        String brandsta = JOptionPane.showInputDialog(this, "Enter Brand:");
+                        String typesta = JOptionPane.showInputDialog(this, "Enter Type of Stationery:");
+                        String materialsta = JOptionPane.showInputDialog(this, "Enter Material:");
+                        product = new Stationary(id, name, price, quantity, brandsta, typesta, materialsta);
+                        break;
+                    default:
+                        JOptionPane.showMessageDialog(this, "Invalid product type.");
+                        return;
+                }
+
+                store.addProduct(product);
+                JOptionPane.showMessageDialog(this, "Product added successfully!");
+                loadProducts(); // Reload the product list
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid number format.");
+            }
+        }
+    }
+
+
+    private void editProduct() {
+        // Implement edit product functionality here
+    }
+
+    private void removeProduct() {
+        // Implement remove product functionality here
+    }
+
+    private void logout() {
+        this.dispose();
+        loginFrame.setVisible(true); // Show the LoginFrame again
+    }
+}

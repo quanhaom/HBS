@@ -1,0 +1,182 @@
+package frame;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+
+import model.Book;
+import model.Product;
+import model.Stationary;
+import model.Toy;
+import services.Store;
+
+public class EmployeeFrame extends JFrame {
+    private Store store;
+    private LoginFrame loginFrame; // Reference to LoginFrame
+    private JList<String> productList; 
+    private DefaultListModel<String> productListModel; 
+    private JTextField searchField; 
+
+    public EmployeeFrame(Store store, LoginFrame loginFrame) {
+        this.store = store;
+        this.loginFrame = loginFrame; // Initialize loginFrame
+
+        setTitle("Employee Frame");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+
+        JPanel searchPanel = new JPanel();
+        searchPanel.add(new JLabel("Search:"));
+        searchField = new JTextField(20);
+        searchPanel.add(searchField);
+        JButton searchButton = new JButton("Search");
+        searchPanel.add(searchButton);
+        JLabel suggestionLabel = new JLabel();
+		searchPanel.add(suggestionLabel);
+        add(searchPanel, BorderLayout.NORTH);
+
+        productListModel = new DefaultListModel<>();
+        productList = new JList<>(productListModel);
+        productList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        add(new JScrollPane(productList), BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel();
+        JButton addProductButton = new JButton("Add Product");
+        JButton editProductButton = new JButton("Edit Product");
+        JButton removeProductButton = new JButton("Remove Product");
+        JButton logoutButton = new JButton("Logout");
+        buttonPanel.add(addProductButton);
+        buttonPanel.add(editProductButton);
+        buttonPanel.add(removeProductButton);
+        buttonPanel.add(logoutButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchProducts(searchField.getText());
+            }
+        });
+
+        addProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addProduct();
+            }
+        });
+
+        editProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editProduct();
+            }
+        });
+
+        removeProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removeProduct();
+            }
+        });
+
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logout();
+            }
+        });
+
+        loadProducts(); // Load products at startup
+    }
+
+    private void loadProducts() {
+        productListModel.clear();
+        List<Product> products = store.getProducts();
+        for (Product product : products) {
+            productListModel.addElement(getProductDisplayInfo(product));
+        }
+    }
+
+    private void searchProducts(String query) {
+        productListModel.clear();
+        List<Product> products = store.getProducts();
+
+        for (Product product : products) {
+            if (product.getId().toLowerCase().contains(query.toLowerCase())
+                    || product.getName().toLowerCase().contains(query.toLowerCase())) {
+                productListModel.addElement(getProductDisplayInfo(product));
+            }
+        }
+
+        if (productListModel.isEmpty()) {
+            productListModel.addElement("No products found.");
+        }
+    }
+
+	private void updateSearchSuggestions() {
+	    String query = searchField.getText().trim();
+	    if (query.isEmpty()) {
+	        suggestionLabel.setText(""); 
+	        return;
+	    }
+
+	    List<Product> products = store.getProducts();
+	    List<String> suggestions = products.stream()
+	            .filter(product -> product.getName().toLowerCase().contains(query.toLowerCase())
+	                    || (product instanceof Book
+	                            && (((Book) product).getAuthor().toLowerCase().contains(query.toLowerCase())
+	                            || ((Book) product).getIsbn().toLowerCase().contains(query.toLowerCase())))
+	                    || (product instanceof Toy
+	                            && ((Toy) product).getBrand().toLowerCase().contains(query.toLowerCase()))
+	                    || (product instanceof Stationary
+	                            && ((Stationary) product).getBrand().toLowerCase().contains(query.toLowerCase()))
+	                    || (product instanceof Book && "Book".toLowerCase().contains(query.toLowerCase()))
+	                    || (product instanceof Toy && "Toy".toLowerCase().contains(query.toLowerCase()))
+	                    || (product instanceof Stationary && "Stationary".toLowerCase().contains(query.toLowerCase())) 
+	            )
+	            .map(Product::getName)
+	            .collect(Collectors.toList());
+
+	    if (!suggestions.isEmpty()) {
+	        suggestionLabel.setText("Suggestions: " + String.join(", ", suggestions));
+	    } else {
+	        suggestionLabel.setText("No suggestions available.");
+	    }
+	}
+
+    private String getProductDisplayInfo(Product product) {
+        return product.getId() + ": " + product.getName() + " (Price: " + product.getPrice() + ", Quantity: " + product.getQuantity() + ")";
+    }
+
+    private void addProduct() {
+        // Add your existing addProduct method here
+    }
+
+    private void editProduct() {
+        // Implement edit product functionality here
+    }
+
+    private void removeProduct() {
+        // Implement remove product functionality here
+    }
+
+    private void logout() {
+        this.dispose();
+        loginFrame.setVisible(true); // Show the LoginFrame again
+    }
+}

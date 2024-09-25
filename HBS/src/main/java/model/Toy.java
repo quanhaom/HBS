@@ -6,7 +6,7 @@ public class Toy extends Product {
 	private String material;
 
 	public Toy(String id, String name, double price, int quantity, String brand, int suitage, String material) {
-		super(id, name, price, quantity); // Call the constructor of the Product class
+		super(id, name, price, quantity);
 		this.brand = brand;
 		this.suitage = suitage;
 		this.brand = brand;
@@ -29,7 +29,7 @@ public class Toy extends Product {
 	public void setSuitAge(int suitage) {
 		this.suitage = suitage;
 	}
-	public void setMaterials(String material) {
+	public void setMaterial(String material) {
 		this.material = material;
 	}
 	

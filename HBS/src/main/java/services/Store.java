@@ -110,6 +110,28 @@ public class Store {
 		}
 		// Optionally, throw an exception or log if the product is not found
 	}
+	public List<Product> searchProducts(String query) {
+        List<Product> result = new ArrayList<>();
+        for (Product product : products) {
+            if (product.getName().toLowerCase().contains(query.toLowerCase()) || 
+                product.getId().toLowerCase().contains(query.toLowerCase())) {
+                result.add(product);
+            }
+        }
+        return result;
+    }
+	public boolean removeProductById(String id) {
+	    Product productToRemove = getProductById(id); // Assuming this method exists
+	    if (productToRemove != null) {
+	        // Logic to remove the product from the list or collection
+	        products.remove(productToRemove); // Assuming you have a List<Product> products
+	        return true; // Indicate that the product was removed
+	    }
+	    return false; // Indicate that the product was not found
+	}
+	  public List<Product> getAllProducts() {
+	        return products; // Return the list of all products
+	    }
 
 	// Method to initialize sample products
 	private void initializeProducts() {

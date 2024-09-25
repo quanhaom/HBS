@@ -1,0 +1,271 @@
+package frame;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+
+import model.Book;
+import model.Product;
+import model.Stationary;
+import model.Toy;
+import services.Store;
+
+public class EmployeeFrame extends JFrame {
+    private Store store;
+    private LoginFrame loginFrame; // Reference to LoginFrame
+    private JList<String> productList; 
+    private DefaultListModel<String> productListModel; 
+    private JTextField searchField; 
+    private JLabel suggestionLabel;
+
+    public EmployeeFrame(Store store, LoginFrame loginFrame) {
+        this.store = store;
+        this.loginFrame = loginFrame; // Initialize loginFrame
+
+        setTitle("Employee Frame");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+
+        JPanel searchPanel = new JPanel();
+        searchPanel.add(new JLabel("Search:"));
+        searchField = new JTextField(20);
+        searchPanel.add(searchField);
+        
+        suggestionLabel = new JLabel(""); // Initialize the label for suggestions
+        searchPanel.add(suggestionLabel);
+
+        JButton searchButton = new JButton("Search");
+        searchPanel.add(searchButton);
+        add(searchPanel, BorderLayout.NORTH);
+
+        productListModel = new DefaultListModel<>();
+        productList = new JList<>(productListModel);
+        productList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        add(new JScrollPane(productList), BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel();
+        JButton addProductButton = new JButton("Add Product");
+        JButton editProductButton = new JButton("Edit Product");
+        JButton removeProductButton = new JButton("Remove Product");
+        JButton logoutButton = new JButton("Logout");
+        buttonPanel.add(addProductButton);
+        buttonPanel.add(editProductButton);
+        buttonPanel.add(removeProductButton);
+        buttonPanel.add(logoutButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchProducts(searchField.getText());
+            }
+        });
+
+        addProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addProduct();
+            }
+        });
+
+        editProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editProduct();
+            }
+        });
+
+        removeProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removeProduct();
+            }
+        });
+
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logout();
+            }
+        });
+
+        loadProducts(); // Load products at startup
+    }
+
+    private void searchProducts(String query) {
+        productListModel.clear(); // Clear previous results
+        List<Product> products = store.getProducts();
+        String lowerCaseQuery = query.toLowerCase(); 
+
+        for (Product product : products) {
+            String displayInfo = getProductDisplayInfo(product);
+            String productType = product instanceof Book ? "Book"
+                    : product instanceof Toy ? "Toy" : product instanceof Stationary ? "Stationary" : "";
+
+            // Additional checks for search
+            if (product.getId().toLowerCase().contains(lowerCaseQuery)
+                    || product.getName().toLowerCase().contains(lowerCaseQuery)
+                    || productType.toLowerCase().contains(lowerCaseQuery) // Check for product type
+                    || (product instanceof Book && (((Book) product).getAuthor().toLowerCase().contains(lowerCaseQuery)
+                            || ((Book) product).getIsbn().toLowerCase().contains(lowerCaseQuery))) // Check for author and ISBN
+                    || (product instanceof Toy && ((Toy) product).getBrand().toLowerCase().contains(lowerCaseQuery))) {
+                productListModel.addElement(displayInfo);
+            }
+        }
+
+        if (productListModel.isEmpty()) {
+            productListModel.addElement("No products found.");
+        }
+
+        updateSearchSuggestions(); // Update suggestions after searching
+    }
+
+    private String getProductDisplayInfo(Product product) {
+        if (product instanceof Book) {
+            Book book = (Book) product;
+            return String.format("Book - ID: %s, Name: %s, Price: %.2f, Author: %s, ISBN: %s, Quantity: %d",
+                    book.getId(), book.getName(), book.getPrice(), book.getAuthor(), book.getIsbn(),
+                    book.getQuantity());
+        } else if (product instanceof Toy) {
+            Toy toy = (Toy) product;
+            return String.format("Toy - ID: %s, Name: %s, Price: %.2f, Brand: %s, Suitable Age: %d, Quantity: %d",
+                    toy.getId(), toy.getName(), toy.getPrice(), toy.getBrand(), toy.getSuitAge(),
+                    toy.getQuantity());
+        } else if (product instanceof Stationary) {
+            Stationary stationary = (Stationary) product;
+            return String.format("Stationary - ID: %s, Name: %s, Price: %.2f, Brand: %s, Quantity: %d", 
+                    stationary.getId(), stationary.getName(), stationary.getPrice(), stationary.getBrand(), 
+                    stationary.getQuantity());
+        }
+        return ""; 
+    }
+
+    private void loadProducts() {
+        productListModel.clear(); // Clear previous content
+        List<Product> products = store.getProducts();
+
+        for (Product product : products) {
+            String displayInfo = getProductDisplayInfo(product);
+            productListModel.addElement(displayInfo);
+        }
+    }
+
+    private void updateSearchSuggestions() {
+        String query = searchField.getText().trim();
+        if (query.isEmpty()) {
+            suggestionLabel.setText(""); 
+            return;
+        }
+
+        List<Product> products = store.getProducts();
+        List<String> suggestions = products.stream()
+                .filter(product -> product.getName().toLowerCase().contains(query.toLowerCase())
+                        || (product instanceof Book
+                                && (((Book) product).getAuthor().toLowerCase().contains(query.toLowerCase())
+                                || ((Book) product).getIsbn().toLowerCase().contains(query.toLowerCase())))
+                        || (product instanceof Toy
+                                && ((Toy) product).getBrand().toLowerCase().contains(query.toLowerCase()))
+                        || (product instanceof Stationary
+                                && ((Stationary) product).getBrand().toLowerCase().contains(query.toLowerCase()))
+                        || (product instanceof Book && "Book".toLowerCase().contains(query.toLowerCase()))
+                        || (product instanceof Toy && "Toy".toLowerCase().contains(query.toLowerCase()))
+                        || (product instanceof Stationary && "Stationary".toLowerCase().contains(query.toLowerCase()))
+                )
+                .map(Product::getName)
+                .collect(Collectors.toList());
+
+        if (!suggestions.isEmpty()) {
+            suggestionLabel.setText("Suggestions: " + String.join(", ", suggestions));
+        } else {
+            suggestionLabel.setText("No suggestions available.");
+        }
+    }
+
+    private void addProduct() {
+        String id = JOptionPane.showInputDialog(this, "Enter Product ID:");
+        String name = JOptionPane.showInputDialog(this, "Enter Product Name:");
+        String priceStr = JOptionPane.showInputDialog(this, "Enter Product Price:");
+        String quantityStr = JOptionPane.showInputDialog(this, "Enter Quantity:");
+        String type = JOptionPane.showInputDialog(this, "Enter Product Type (Book/Toy/Stationery):");
+
+        if (id != null && name != null && priceStr != null && quantityStr != null && type != null) {
+            try {
+                double price = Double.parseDouble(priceStr);
+                int quantity = Integer.parseInt(quantityStr);
+                Product product = null;
+
+                switch (type) {
+                    case "Book":
+                        String author = JOptionPane.showInputDialog(this, "Enter Author:");
+                        String publisher = JOptionPane.showInputDialog(this, "Enter Publisher:");
+                        String isbn = JOptionPane.showInputDialog(this, "Enter ISBN:");
+                        int publicationYear = Integer.parseInt(JOptionPane.showInputDialog(this, "Enter Publication Year:"));
+                        product = new Book(id, name, price, quantity, author, isbn, publicationYear, publisher);
+                        break;
+                    case "Toy":
+                        String brand = JOptionPane.showInputDialog(this, "Enter Brand:");
+                        String material = JOptionPane.showInputDialog(this, "Enter Material:");
+                        int suitage = Integer.parseInt(JOptionPane.showInputDialog(this, "Enter Suitable Age:"));
+                        product = new Toy(id, name, price, quantity, brand, suitage, material);
+                        break;
+                    case "Stationery":
+                        String brandsta = JOptionPane.showInputDialog(this, "Enter Brand:");
+                        String typesta = JOptionPane.showInputDialog(this, "Enter Type of Stationery:");
+                        String materialsta = JOptionPane.showInputDialog(this, "Enter Material:");
+                        product = new Stationary(id, name, price, quantity, brandsta, typesta, materialsta);
+                        break;
+                    default:
+                        JOptionPane.showMessageDialog(this, "Invalid product type.");
+                        return;
+                }
+
+                store.addProduct(product); // Ensure this method is implemented in the Store class
+                JOptionPane.showMessageDialog(this, "Product added successfully!");
+                loadProducts(); // Reload the product list
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid input for price or quantity.");
+            	}
+        	}
+    	}
+	}
+}
+
+
+    private void editProduct() {
+        int selectedIndex = productList.getSelectedIndex();
+        if (selectedIndex != -1) {
+            String selectedProductInfo = productListModel.get(selectedIndex);
+            String productId = selectedProductInfo.split(":")[1].split(",")[0].trim(); // Assuming the ID is the second part
+            
+            // Fetch the existing product by ID
+            Product existingProduct = store.getProductById(productId);
+            if (existingProduct != null) {
+                String name = JOptionPane.showInputDialog(this, "Enter Product Name:", existingProduct.getName());
+                String priceStr = JOptionPane.showInputDialog(this, "Enter Product Price:", existingProduct.getPrice());
+                String quantityStr = JOptionPane.showInputDialog(this, "Enter Quantity:", existingProduct.getQuantity());
+                
+                if (existingProduct instanceof Book) {
+                    String author = JOptionPane.showInputDialog(this, "Enter Author:", ((Book) existingProduct).getAuthor());
+                    String publisher = JOptionPane.showInputDialog(this, "Enter Publisher:", ((Book) existingProduct).getPublisher());
+                    String isbn = JOptionPane.showInputDialog(this, "Enter ISBN:", ((Book) existingProduct).getIsbn());
+                    int publicationYear = Integer.parseInt(JOptionPane.showInputDialog(this, "Enter Publication Year:", ((Book) existingProduct).getPublicationYear()));
+                    store.updateProduct(new Book(productId, name, Double.parseDouble(priceStr), Integer.parseInt(quantityStr), author, isbn, publicationYear, publisher));
+                } else if (existingProduct instanceof Toy) {
+                    String brand = JOptionPane.showInputDialog(this, "Enter Brand:", ((Toy) existingProduct).getBrand());
+                    String material = JOptionPane.showInputDialog(this, "Enter Material:", ((Toy) existingProduct).getMaterial());
+                    int suitage = Integer.parseInt(JOptionPane.showInputDialog

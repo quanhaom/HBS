@@ -1,0 +1,42 @@
+package frame;
+
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import services.Store;
+
+public class StrangerFrame extends JFrame {
+    private Store store; // Reference to the Store class
+
+    public StrangerFrame(Store store) {
+        this.store = store;
+
+        setTitle("Stranger Mode");
+        setSize(300, 200);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); // Center the frame
+
+        // Create UI components
+        JLabel welcomeLabel = new JLabel("Welcome, Stranger!");
+        JButton checkoutButton = new JButton("Checkout");
+
+        // Set up layout
+        setLayout(new GridLayout(2, 1));
+        add(welcomeLabel);
+        add(checkoutButton);
+
+        // Action listener for the checkout button
+        checkoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(StrangerFrame.this, "Payment successful!");
+                dispose(); // Close StrangerFrame
+                new LoginFrame(store).setVisible(true); // Return to LoginFrame
+            }
+        });
+    }
+}
