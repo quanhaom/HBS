@@ -1,0 +1,84 @@
+package frame;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class SignUpFrame extends JFrame {
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JTextField nameField;
+    private JTextField dobField;
+    private JTextField phoneField;
+    private JTextField idCardField;
+    private JButton signUpButton;
+
+    public SignUpFrame() {
+        // Thiết lập cửa sổ
+        setTitle("Sign Up");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new GridLayout(7, 2)); // GridLayout với 7 hàng và 2 cột
+
+        // Thêm các trường nhập liệu
+        add(new JLabel("Username:"));
+        usernameField = new JTextField();
+        add(usernameField);
+
+        add(new JLabel("Password:"));
+        passwordField = new JPasswordField();
+        add(passwordField);
+
+        add(new JLabel("Name:"));
+        nameField = new JTextField();
+        add(nameField);
+
+        add(new JLabel("Date of Birth (YYYY-MM-DD):"));
+        dobField = new JTextField();
+        add(dobField);
+
+        add(new JLabel("Phone:"));
+        phoneField = new JTextField();
+        add(phoneField);
+
+        add(new JLabel("ID Card:"));
+        idCardField = new JTextField();
+        add(idCardField);
+
+        // Nút đăng ký
+        signUpButton = new JButton("Sign Up");
+        signUpButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                signUp();
+            }
+        });
+        add(signUpButton);
+
+        // Hiển thị cửa sổ
+        setVisible(true);
+    }
+
+    private void signUp() {
+        // Lấy dữ liệu từ các trường nhập liệu
+        String username = usernameField.getText();
+        String password = new String(passwordField.getPassword());
+        String name = nameField.getText();
+        String dob = dobField.getText();
+        String phone = phoneField.getText();
+        String idCard = idCardField.getText();
+
+        // Xử lý đăng ký ở đây (kiểm tra dữ liệu, lưu vào cơ sở dữ liệu, v.v.)
+        // Ví dụ: hiển thị thông báo đăng ký thành công
+        JOptionPane.showMessageDialog(this, "Đăng ký thành công!");
+
+        // Đóng cửa sổ đăng ký (nếu cần)
+        dispose();
+    }
+
+    public static void main(String[] args) {
+        new SignUpFrame();
+    }
+}

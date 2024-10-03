@@ -1,0 +1,74 @@
+package frame;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JOptionPane;
+import services.Store;
+
+public class ManagerFrame extends JFrame {
+    private Store store; // Store reference for accessing data
+    private LoginFrame loginFrame; // Declare loginFrame variable
+
+    public ManagerFrame(Store store, LoginFrame loginFrame) {
+        this.store = store;
+        this.loginFrame = loginFrame; // Initialize loginFrame
+
+        setTitle("Manager Frame");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Button Panel
+        JPanel buttonPanel = new JPanel();
+        JButton productsButton = new JButton("Products");
+        JButton employeesButton = new JButton("Employees");
+        JButton storeButton = new JButton("Store");
+
+        buttonPanel.add(productsButton);
+        buttonPanel.add(employeesButton);
+        buttonPanel.add(storeButton);
+        add(buttonPanel, BorderLayout.CENTER);
+
+        // Action listeners
+        productsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showProducts();
+            }
+        });
+
+        employeesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showEmployees();
+            }
+        });
+
+        storeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showStore();
+            }
+        });
+    }
+
+    private void showProducts() {
+        ProductFrame productFrame = new ProductFrame(store, loginFrame); // Pass the Store and LoginFrame
+        productFrame.setVisible(true);
+        this.setVisible(false); // Optionally hide the ManagerFrame
+    }
+
+    // Other methods (showEmployees, showStore, etc.) remain unchanged
+
+    // Main method for testing
+    public static void main(String[] args) {
+        Store store = new Store(); // Create a Store instance
+        LoginFrame loginFrame = new LoginFrame(); // Create a LoginFrame instance (you need to implement this)
+        ManagerFrame managerFrame = new ManagerFrame(store, loginFrame);
+        managerFrame.setVisible(true);
+    }
+}

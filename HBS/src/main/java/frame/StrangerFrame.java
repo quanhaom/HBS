@@ -6,18 +6,19 @@ import services.Store;
 
 public class StrangerFrame extends JFrame {
     private Store store;
+    private LoginFrame loginFrame; 
 
-    public StrangerFrame(Store store) {
+    public StrangerFrame(Store store, LoginFrame loginFrame) {
+    	this.loginFrame = loginFrame;
         this.store = store;
 
         setTitle("Stranger Frame");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Center the frame
+        setLocationRelativeTo(null);
 
-        // Open CustomerFrame directly
-        new CustomerFrame(store, null).setVisible(true); // Pass null for LoginFrame reference
+        new CustomerFrame(store, null).setVisible(true); 
         JOptionPane.showMessageDialog(this, "Welcome! You are in Stranger Mode.");
-        dispose(); // Close the StrangerFrame
+        dispose(); 
     }
 }

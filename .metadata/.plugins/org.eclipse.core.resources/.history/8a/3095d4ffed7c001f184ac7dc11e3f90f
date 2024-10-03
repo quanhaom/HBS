@@ -1,0 +1,43 @@
+package frame;
+
+import java.awt.BorderLayout;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import services.Store;
+
+public class ProductFrame extends EmployeeFrame {
+
+    public ProductFrame(Store store, LoginFrame loginFrame) {
+        super(store, loginFrame);  // Call the constructor of EmployeeFrame
+
+        setTitle("Product Management");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // You can add additional components or modify existing ones here
+
+        // For example, adding a back button to return to the ManagerFrame
+        JButton backButton = new JButton("Back to Manager");
+        backButton.addActionListener(e -> goBackToManager());
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(backButton);
+        add(buttonPanel, BorderLayout.NORTH);  // Add the button at the top
+    }
+
+    private void goBackToManager() {
+        setVisible(false); // Hide the ProductFrame
+        // Assuming you have a way to access the ManagerFrame, you can show it
+        // You may want to pass ManagerFrame reference when creating ProductFrame
+    }
+
+    @Override
+    protected void loadProducts() {
+        // If needed, override loadProducts for custom behavior
+        super.loadProducts(); // Call the base method if you want to keep its behavior
+    }
+
+    // Additional methods for ProductFrame can go here
+}

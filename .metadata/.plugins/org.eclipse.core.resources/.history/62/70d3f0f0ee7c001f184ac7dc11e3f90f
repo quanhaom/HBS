@@ -1,0 +1,28 @@
+package frame;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import model.Product;
+import services.Store;
+
+public class ProductFrame extends EmployeeFrame {
+	private Store store;
+    private ManagerFrame managerFrame;
+
+    public ProductFrame(Store store, ManagerFrame managerFrame) {
+        super(store,null);  // Call BaseFrame constructor
+        this.managerFrame = managerFrame;
+        setTitle("Product Frame");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+    }
+}

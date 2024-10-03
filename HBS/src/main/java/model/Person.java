@@ -1,5 +1,9 @@
 package model;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public class Person {
 	private String id;
 	private String name;
@@ -10,7 +14,7 @@ public class Person {
 		this.id = id;
 		this.name = name;
 		this.password = password;
-		this.role = role; // Initialize role
+		this.role = role; 
 	}
 
 	// Getters
@@ -26,5 +30,17 @@ public class Person {
 
 	public String getRole() {
 		return role;
-	} // Ensure this is correctly implemented
+	}
+	public void addUser(Connection connection) {
+        String sql = "INSERT INTO users (id, name, password, role) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, this.id);
+            stmt.setString(2, this.name);
+            stmt.setString(3, this.password);
+            stmt.setString(4, this.role);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

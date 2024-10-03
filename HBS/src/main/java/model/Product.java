@@ -13,7 +13,6 @@ public class Product {
         this.quantity = quantity;
     }
 
-    // Getters
     public String getId() {
         return id;
     }
@@ -26,7 +25,7 @@ public class Product {
         return price;
     }
 
-    public int getQuantity() { // Added this method
+    public int getQuantity() {
         return quantity;
     }
 
@@ -47,9 +46,9 @@ public class Product {
         this.quantity = quantity;
     }
 
-    // Override toString method
     @Override
     public String toString() {
         return "Product [ID=" + id + ", Name=" + name + ", Price=" + price + "]";
     }
+    
 }

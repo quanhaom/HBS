@@ -1,0 +1,44 @@
+package frame;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import model.Product;
+import services.Store;
+
+public class ProductFrame extends EmployeeFrame {
+	private Store store;
+    private ManagerFrame managerFrame;
+
+    public ProductFrame(Store store, ManagerFrame managerFrame) {
+        super(store,null);  // Call BaseFrame constructor
+        this.managerFrame = managerFrame;
+        setTitle("Product Frame");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Button Panel for Product Actions
+        JPanel buttonPanel = new JPanel();
+        JButton viewProductButton = new JButton("View Product");
+        JButton searchProductButton = new JButton("Search Product");
+        JButton logoutButton = new JButton("Logout");
+        buttonPanel.add(viewProductButton);
+        buttonPanel.add(searchProductButton);
+        buttonPanel.add(logoutButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Event listeners for buttons
+        viewProductButton.addActionListener(e -> viewProduct());
+        searchProductButton.addActionListener(e -> searchProduct());
+        logoutButton.addActionListener(e -> logout());
+
+        loadProducts(); // Load products when frame opens
+    }
+}

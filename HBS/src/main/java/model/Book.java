@@ -10,11 +10,10 @@ public class Book extends Product {
 		super(id, name, price, quantity);
 		this.author = author;
 		this.isbn = isbn;
-		this.publicationYear = publicationYear; // Initialize publication year
-		this.publisher = publisher; // Initialize publisher
+		this.publicationYear = publicationYear; 
+		this.publisher = publisher; 
 	}
 
-	// Getters
 	public String getAuthor() {
 		return author;
 	}
@@ -24,11 +23,11 @@ public class Book extends Product {
 	}
 
 	public int getPublicationYear() {
-		return publicationYear; // Getter for publication year
+		return publicationYear;
 	}
 
 	public String getPublisher() {
-		return publisher; // Getter for publisher
+		return publisher; 
 	}
 
 	// Setters
@@ -45,7 +44,7 @@ public class Book extends Product {
 	}
 
 	public void setPublisher(String publisher) {
-		this.publisher = publisher; // Setter for publisher
+		this.publisher = publisher;
 	}
 
 	@Override

@@ -1,0 +1,33 @@
+import java.util.List;
+import java.util.stream.Collectors;
+
+import services.Store;
+
+public class Customer extends Person {
+    private Store store;
+
+    public Customer(String id, String name, String password, Store store) {
+        super(id, name, password, "Customer");
+        this.store = store;
+    }
+
+    public List<Product> searchProductsByName(String name) {
+        return store.searchByName(name);
+    }
+
+    public List<Book> searchBooksByAuthor(String author) {
+        List<Product> products = store.searchByAuthor(author);
+        return products.stream()
+                .filter(product -> product instanceof Book)
+                .map(product -> (Book) product)
+                .collect(Collectors.toList());
+    }
+
+    public List<Book> searchBooksByPublicationYear(int year) {
+        List<Product> products = store.searchByPublicationYear(year);
+        return products.stream()
+                .filter(product -> product instanceof Book)
+                .map(product -> (Book) product)
+                .collect(Collectors.toList());
+    }
+}

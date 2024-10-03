@@ -10,6 +10,7 @@ public class Toy extends Product {
 		this.brand = brand;
 		this.suitage = suitage;
 		this.brand = brand;
+		this.material = material;
 	}
 
 	public String getBrand() {

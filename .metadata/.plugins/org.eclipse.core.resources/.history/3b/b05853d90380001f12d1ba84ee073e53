@@ -1,0 +1,170 @@
+package frame;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+public class EmpmanaFrame extends JFrame {
+    private JTable employeeTable;
+    private JButton addButton, editButton, removeButton;
+    private JTextField searchField;
+    private JComboBox<String> sortOptions;
+    private List<Employee> employeeList;
+
+    public EmpmanaFrame() {
+        employeeList = new ArrayList<>(); // Initialize the list to store employees
+
+        setTitle("Employee Management");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Initialize the table model
+        initializeTableModel();
+
+        JScrollPane scrollPane = new JScrollPane(employeeTable);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Create the panel for buttons and search
+        JPanel actionPanel = new JPanel();
+        add(actionPanel, BorderLayout.SOUTH);
+
+        searchField = new JTextField(15);
+        actionPanel.add(searchField);
+
+        addButton = new JButton("Add Employee");
+        actionPanel.add(addButton);
+        addButton.addActionListener(e -> addEmployee());
+
+        editButton = new JButton("Edit Employee");
+        actionPanel.add(editButton);
+        editButton.addActionListener(e -> editEmployee());
+
+        removeButton = new JButton("Remove Employee");
+        actionPanel.add(removeButton);
+        removeButton.addActionListener(e -> removeEmployee());
+
+        // Add sorting options
+        sortOptions = new JComboBox<>(new String[]{"Sort by Name", "Sort by ID"});
+        sortOptions.addActionListener(e -> updateSortedEmployeeDisplay());
+        actionPanel.add(sortOptions);
+
+        setSize(600, 400);
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
+
+    // Initialize the table model
+    private void initializeTableModel() {
+        String[] columnNames = {"ID", "Name", "Position"};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        employeeTable = new JTable(model);
+    }
+
+    // Add an employee to the list and update the table
+    private void addEmployee() {
+        String id = JOptionPane.showInputDialog(this, "Enter Employee ID:");
+        String name = JOptionPane.showInputDialog(this, "Enter Employee Name:");
+        String position = JOptionPane.showInputDialog(this, "Enter Employee Position:");
+
+        if (id != null && name != null && position != null) {
+            Employee newEmployee = new Employee(id, name, position);
+            employeeList.add(newEmployee);
+            updateTable();
+        }
+    }
+
+    // Edit the selected employee
+    private void editEmployee() {
+        int selectedRow = employeeTable.getSelectedRow();
+        if (selectedRow != -1) {
+            Employee selectedEmployee = employeeList.get(selectedRow);
+
+            String newName = JOptionPane.showInputDialog(this, "Enter new Name:", selectedEmployee.getName());
+            String newPosition = JOptionPane.showInputDialog(this, "Enter new Position:", selectedEmployee.getPosition());
+
+            if (newName != null && newPosition != null) {
+                selectedEmployee.setName(newName);
+                selectedEmployee.setPosition(newPosition);
+                updateTable();
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a row to edit.");
+        }
+    }
+
+    // Remove the selected employee
+    private void removeEmployee() {
+        int selectedRow = employeeTable.getSelectedRow();
+        if (selectedRow != -1) {
+            employeeList.remove(selectedRow);
+            updateTable();
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a row to remove.");
+        }
+    }
+
+    // Update the table to display the current employees
+    private void updateTable() {
+        DefaultTableModel model = (DefaultTableModel) employeeTable.getModel();
+        model.setRowCount(0); // Clear the table
+
+        for (Employee employee : employeeList) {
+            model.addRow(new Object[]{employee.getId(), employee.getName(), employee.getPosition()});
+        }
+    }
+
+    // Sort employees based on the selected option and update the table
+    private void updateSortedEmployeeDisplay() {
+        if (sortOptions.getSelectedIndex() == 0) {
+            employeeList.sort(Comparator.comparing(Employee::getName)); // Sort by Name
+        } else {
+            employeeList.sort(Comparator.comparing(Employee::getId)); // Sort by ID
+        }
+        updateTable();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(EmpmanaFrame::new);
+    }
+}
+
+// Employee class to represent employee data
+class Employee {
+    private String id;
+    private String name;
+    private String position;
+
+    public Employee(String id, String name, String position) {
+        this.id = id;
+        this.name = name;
+        this.position = position;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+}

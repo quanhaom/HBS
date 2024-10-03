@@ -1,0 +1,18 @@
+package frame;
+
+
+
+
+import model.Product;
+import services.Store;
+
+
+
+    public ProductFrame(Store store, ManagerFrame managerFrame) {
+        super(store,null);  // Call BaseFrame constructor
+        this.managerFrame = managerFrame;
+        setTitle("Product Frame");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+    }

@@ -16,7 +16,7 @@ import services.Store;
 public class LoginFrame extends JFrame {
     private JTextField userIdField;
     private JPasswordField passwordField;
-    private Store store; // Reference to the Store class
+    private Store store; 
 
     public LoginFrame(Store store) {
         this.store = store;
@@ -32,20 +32,19 @@ public class LoginFrame extends JFrame {
         JLabel passwordLabel = new JLabel("Password:");
         passwordField = new JPasswordField(15);
         JButton loginButton = new JButton("Login");
-        JButton clearButton = new JButton("Clear");
-        JButton dontLoginButton = new JButton("Don't Login"); // New button
+        JButton dontLoginButton = new JButton("Don't Login");
+        JButton signUpButton = new JButton("Sign Up");
 
         // Set up layout
-        setLayout(new GridLayout(4, 2)); // Adjusted grid layout
+        setLayout(new GridLayout(4, 2)); 
         add(userIdLabel);
         add(userIdField);
         add(passwordLabel);
         add(passwordField);
         add(loginButton);
-        add(clearButton);
-        add(dontLoginButton); // Add the new button
+        add(dontLoginButton);
+        add(signUpButton);
 
-        // Action listeners
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -54,28 +53,30 @@ public class LoginFrame extends JFrame {
             }
         });
 
-        clearButton.addActionListener(new ActionListener() {
+        dontLoginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                userIdField.setText("");
-                passwordField.setText("");
+                new StrangerFrame(store , null);
+                dispose();
+                return;
+            }
+        });
+        signUpButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new SignUpFrame(LoginFrame.this); // Pass the current instance
+                dispose();
             }
         });
 
-        dontLoginButton.addActionListener(new ActionListener() { // Handle Don't Login
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new StrangerFrame(store); // Open StrangerFrame
-            }
-        });
+
     }
+    	
 
-    // Make sure this method is defined in the LoginFrame class
     private void login(String userId, String password) {
-        List<Person> users = store.getUsers(); // Get all users from the store
+        List<Person> users = store.getUsers(); 
         for (Person user : users) {
             if (user.getId().equals(userId) && user.getPassword().equals(password)) {
-                // Handle role-based navigation
                 switch (user.getRole()) {
                     case "Employee":
                         new EmployeeFrame(store, this).setVisible(true);
@@ -84,13 +85,13 @@ public class LoginFrame extends JFrame {
                         new CustomerFrame(store, this).setVisible(true);
                         break;
                     case "Manager":
-                        new ManagerFrame(store, this).setVisible(true);
+                        new ManagerFrame(store,this).setVisible(true);
                         break;
                     default:
                         JOptionPane.showMessageDialog(this, "Unknown role: " + user.getRole());
                         return;
                 }
-                dispose(); // Close LoginFrame
+                dispose(); 
                 return;
             }
         }
@@ -98,14 +99,9 @@ public class LoginFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        Store store = new Store(); // Initialize Store
+        Store store = new Store(); 
 
-        // Populate store with users (for testing)
-        store.addUser(new Person("1", "Alice", "1", "Customer"));
-        store.addUser(new Person("2", "Bob", "2", "Employee"));
-        store.addUser(new Person("3", "Charlie", "3", "Manager"));
-
-        LoginFrame loginFrame = new LoginFrame(store);
-        loginFrame.setVisible(true);
+        LoginFrame loginFrame = new LoginFrame(store); // Create LoginFrame
+        loginFrame.setVisible(true); // Make frame visible
     }
 }
