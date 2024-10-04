@@ -23,7 +23,6 @@ public class Stationery extends Product {
 		return material;
 	}
 
-	// Setters
 	public void setBrand(String brand) {
 		this.brand = brand;
 	}

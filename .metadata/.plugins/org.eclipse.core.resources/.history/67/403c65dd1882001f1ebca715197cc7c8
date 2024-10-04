@@ -1,0 +1,124 @@
+import javax.swing.*;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import java.awt.*;
+import java.util.List;
+import model.Product;
+
+public abstract class BaseFrame extends JFrame {
+    protected Store store;
+    protected JTable productTable; 
+    protected DefaultTableModel tableModel;
+    protected JTextField searchField;
+    protected JLabel suggestionLabel;
+    protected JComboBox<String> sortOptions;
+    protected static final int WIDTH = 1000;
+    protected static final int HEIGHT = 700;
+
+    public BaseFrame(Store store) {
+        this.store = store;
+        setSize(WIDTH, HEIGHT);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        setLayout(new BorderLayout());
+
+        JPanel searchPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        searchPanel.add(new JLabel("Search:"), gbc);
+
+        gbc.gridx = 1;
+        searchField = new JTextField(15);
+        searchPanel.add(searchField, gbc);
+
+        String[] sortingCriteria = { "ID", "Price", "Quantity", "Product Type" };
+        sortOptions = new JComboBox<>(sortingCriteria);
+
+        sortOptions.addActionListener(e -> updateSortedProductDisplay());
+
+        gbc.gridx = 2;
+        searchPanel.add(sortOptions, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        suggestionLabel = new JLabel();
+        searchPanel.add(suggestionLabel, gbc);
+
+        add(searchPanel, BorderLayout.NORTH);
+
+        // Table setup
+        String[] columnNames = { "ID", "Name", "Price", "Quantity", "Brand", "Material", "Author", "ISBN", "Publisher", "Year" };
+        tableModel = new DefaultTableModel(columnNames, 0);
+        productTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(productTable);
+        add(scrollPane, BorderLayout.CENTER);
+
+        displayAllProducts();
+        adjustColumnWidths(productTable);
+    }
+
+    protected void displayAllProducts() {
+        tableModel.setRowCount(0); // Clear existing rows
+        List<Product> products = store.getProducts();
+        products = sortProducts(products);  // Sort based on selection
+
+        for (Product product : products) {
+            Object[] rowData = getProductRowData(product);
+            tableModel.addRow(rowData);  // Add each product to the table
+        }
+    }
+
+    // Method to get row data for each product
+    protected Object[] getProductRowData(Product product) {
+        if (product instanceof Book) {
+            Book book = (Book) product;
+            return new Object[]{
+                book.getId(), book.getName(), book.getPrice(), book.getQuantity(),
+                "", "", book.getAuthor(), book.getIsbn(), book.getPublisher(), book.getPublicationYear()
+            };
+        } else if (product instanceof Toy) {
+            Toy toy = (Toy) product;
+            return new Object[]{
+                toy.getId(), toy.getName(), toy.getPrice(), toy.getQuantity(),
+                toy.getBrand(), toy.getMaterial(), "", "", "", ""
+            };
+        } else if (product instanceof Stationery) {
+            Stationery stationery = (Stationery) product;
+            return new Object[]{
+                stationery.getId(), stationery.getName(), stationery.getPrice(), stationery.getQuantity(),
+                stationery.getBrand(), stationery.getMaterial(), "", "", "", ""
+            };
+        }
+        return new Object[]{};
+    }
+
+    // Adjust column widths to fit the content
+    private void adjustColumnWidths(JTable table) {
+        final TableColumnModel columnModel = table.getColumnModel();
+        for (int column = 0; column < table.getColumnCount(); column++) {
+            int width = 50; // Min width
+            for (int row = 0; row < table.getRowCount(); row++) {
+                TableCellRenderer renderer = table.getCellRenderer(row, column);
+                Component comp = table.prepareRenderer(renderer, row, column);
+                width = Math.max(comp.getPreferredSize().width + 10, width); // Add some padding
+            }
+            columnModel.getColumn(column).setPreferredWidth(width);
+        }
+    }
+
+    protected List<Product> sortProducts(List<Product> products) {
+        String selectedCriteria = (String) sortOptions.getSelectedItem();
+        // Sorting logic here...
+        return products;
+    }
+
+    private void updateSortedProductDisplay() {
+        displayAllProducts();
+        adjustColumnWidths(productTable);  // Adjust the widths again after sorting
+    }
+}

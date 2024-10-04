@@ -30,7 +30,6 @@ public class Book extends Product {
 		return publisher; 
 	}
 
-	// Setters
 	public void setAuthor(String author) {
 		this.author = author;
 	}

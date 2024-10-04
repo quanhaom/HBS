@@ -10,10 +10,10 @@ import javax.swing.JOptionPane;
 import services.Store;
 
 public class ManagerFrame extends JFrame {
-    private Store store; // Store reference for accessing data
+    private Store store; 
     private LoginFrame loginFrame;
     
-    public ManagerFrame(Store store,LoginFrame loginFrame) { // Fix the constructor parameter name
+    public ManagerFrame(Store store,LoginFrame loginFrame) { 
         this.store = store;
         this.loginFrame=loginFrame;
 
@@ -22,10 +22,9 @@ public class ManagerFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Button Panel
         JPanel buttonPanel = new JPanel();
         JButton productsButton = new JButton("Products");
-        JButton employeesButton = new JButton("Employees");
+        JButton employeesButton = new JButton("Users");
         JButton storeButton = new JButton("Store");
         JButton logoutButton = new JButton("Logout");
         
@@ -59,31 +58,23 @@ public class ManagerFrame extends JFrame {
         });
     }
 
-    // Method to show the products management interface
     private void showProducts() {
         ProductFrame productFrame = new ProductFrame(store, this); // Correctly passing the instance
         productFrame.setVisible(true);
-        this.setVisible(false); // Hide the ManagerFrame when showing ProductFrame
+        this.setVisible(false);
     }
 
-
-
-    // Method to show the employees management interface
     private void showEmployees() {
-    	EmpmanaFrame empmanaFrame = new EmpmanaFrame(); // Correctly passing the instance
+    	EmpmanaFrame empmanaFrame = new EmpmanaFrame(this); // Correctly passing the instance
         empmanaFrame.setVisible(true);
         this.setVisible(false);
     }
 
-    // Method to show the store information interface
     private void showStore() {
         JOptionPane.showMessageDialog(this, "Store Information");
-        // Implement functionality to show store details here
-        // e.g., displaying store statistics or information
     }
     private void logout() {
         setVisible(false);
 		loginFrame.setVisible(true);}
 
-    // Main method for testing
 }

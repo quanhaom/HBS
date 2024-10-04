@@ -1,0 +1,37 @@
+package frame;
+
+
+import java.awt.BorderLayout;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import services.Store;
+
+public class ProductFrame extends EmployeeFrame {
+	private JButton backButton;
+    private ManagerFrame managerFrame;
+
+    public ProductFrame(Store store, ManagerFrame managerFrame) {
+
+        super(store,null);
+        this.managerFrame = managerFrame;
+        
+        JPanel actionPanel = new JPanel();
+        add(actionPanel, BorderLayout.SOUTH);
+        
+    	backButton = new JButton("Back");
+        actionPanel.add(backButton);
+        backButton.addActionListener(e -> back());
+        
+        setTitle("Product Frame");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+    }
+    private void back() {
+    	setVisible(false);
+		managerFrame.setVisible(true);
+    }
+}

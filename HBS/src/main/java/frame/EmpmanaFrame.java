@@ -12,13 +12,14 @@ import java.sql.Statement;
 
 public class EmpmanaFrame extends JFrame {
     private JTable employeeTable;
-    private DefaultTableModel tableModel; // Mô hình cho bảng
-    private JButton addButton, editButton, removeButton;
+    private DefaultTableModel tableModel;
+    private JButton addButton, editButton, removeButton, backButton;
     private JTextField searchField;
-    private JComboBox<String> sortOptions;
     private JComboBox<String> salaryOptions;
+	private ManagerFrame managerFrame;
 
-    public EmpmanaFrame() {
+    public EmpmanaFrame(ManagerFrame managerFrame) {
+    	this.managerFrame = managerFrame;
         setTitle("User Management");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -32,9 +33,6 @@ public class EmpmanaFrame extends JFrame {
         JPanel actionPanel = new JPanel();
         add(actionPanel, BorderLayout.SOUTH);
 
-        searchField = new JTextField(15);
-        actionPanel.add(searchField);
-
         addButton = new JButton("Add User");
         actionPanel.add(addButton);
         addButton.addActionListener(e -> addUser());
@@ -47,12 +45,12 @@ public class EmpmanaFrame extends JFrame {
         actionPanel.add(removeButton);
         removeButton.addActionListener(e -> removeUser());
 
-        // Thêm tùy chọn sắp xếp
-        sortOptions = new JComboBox<>(new String[]{"Sort by Name", "Sort by ID"});
-        sortOptions.addActionListener(e -> updateSortedUserDisplay());
-        actionPanel.add(sortOptions);
+        backButton = new JButton("Back");
+        actionPanel.add(backButton);
+        backButton.addActionListener(e -> back());
 
-        // Thêm tùy chọn hiển thị lương
+
+
         salaryOptions = new JComboBox<>(new String[]{"Show Salary1", "Show Salary2", "Show Salary3"});
         salaryOptions.addActionListener(e -> updateSalaryDisplay());
         actionPanel.add(salaryOptions);
@@ -227,7 +225,9 @@ public class EmpmanaFrame extends JFrame {
         JOptionPane.showMessageDialog(this, "Salary display functionality not implemented yet.");
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(EmpmanaFrame::new);
+
+    private void back() {
+    	setVisible(false);
+		managerFrame.setVisible(true);
     }
 }

@@ -24,9 +24,8 @@ public class LoginFrame extends JFrame {
         setTitle("Login");
         setSize(300, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Center the frame
+        setLocationRelativeTo(null); 
 
-        // Create UI components
         JLabel userIdLabel = new JLabel("User ID:");
         userIdField = new JTextField(15);
         JLabel passwordLabel = new JLabel("Password:");
@@ -35,7 +34,6 @@ public class LoginFrame extends JFrame {
         JButton dontLoginButton = new JButton("Don't Login");
         JButton signUpButton = new JButton("Sign Up");
 
-        // Set up layout
         setLayout(new GridLayout(4, 2)); 
         add(userIdLabel);
         add(userIdField);
@@ -48,7 +46,6 @@ public class LoginFrame extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Ensure this call to login is within the LoginFrame class
                 login(userIdField.getText(), new String(passwordField.getPassword()));
             }
         });
@@ -101,7 +98,7 @@ public class LoginFrame extends JFrame {
     public static void main(String[] args) {
         Store store = new Store(); 
 
-        LoginFrame loginFrame = new LoginFrame(store); // Create LoginFrame
-        loginFrame.setVisible(true); // Make frame visible
+        LoginFrame loginFrame = new LoginFrame(store);
+        loginFrame.setVisible(true); 
     }
 }

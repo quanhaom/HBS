@@ -18,14 +18,13 @@ public class EmployeeFrame extends BaseFrame {
     private LoginFrame loginFrame;
 
     public EmployeeFrame(Store store, LoginFrame loginFrame) {
-        super(store);  // Call BaseFrame constructor
+        super(store); 
         this.loginFrame = loginFrame;
 
         setTitle("Employee Frame");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Button Panel for Product Actions
         JPanel buttonPanel = new JPanel();
         JButton addProductButton = new JButton("Add Product");
         JButton editProductButton = new JButton("Edit Product");
@@ -37,17 +36,19 @@ public class EmployeeFrame extends BaseFrame {
         buttonPanel.add(logoutButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // Event listeners for buttons
         addProductButton.addActionListener(e -> addProduct());
         editProductButton.addActionListener(e -> editProduct());
         removeProductButton.addActionListener(e -> removeProduct());
         logoutButton.addActionListener(e -> logout());
 
-        loadProducts(); // Load products when frame opens
+        loadProducts();
     }
 
     private void addProduct() {
-        String type = JOptionPane.showInputDialog(this, "Enter Product Type (Book/Toy/Stationery):");
+    	String[] types = {"Book", "Toy", "Stationery"};
+        String type = (String) JOptionPane.showInputDialog(this, "Select Role:", "Role Selection",
+                JOptionPane.QUESTION_MESSAGE, null, types, types[0]);
+
         String name = JOptionPane.showInputDialog(this, "Enter Product Name:");
         String priceStr = JOptionPane.showInputDialog(this, "Enter Product Price:");
         String quantityStr = JOptionPane.showInputDialog(this, "Enter Quantity:");
@@ -58,8 +59,7 @@ public class EmployeeFrame extends BaseFrame {
                 int quantity = Integer.parseInt(quantityStr);
                 Product product = null;
 
-                // Automatically generate ID
-                int id = store.getNextProductId();  // Method to get the next product ID
+                int id = store.getNextProductId(); 
 
                 switch (type) {
                     case "Book":
@@ -73,7 +73,7 @@ public class EmployeeFrame extends BaseFrame {
                         String brand = JOptionPane.showInputDialog(this, "Enter Brand:");
                         String material = JOptionPane.showInputDialog(this, "Enter Material:");
                         int suitage = Integer.parseInt(JOptionPane.showInputDialog(this, "Enter Suitable Age:"));
-                        product = new Toy(String.valueOf(id), name, price, quantity, brand, suitage, material); // Ensure material is passed here
+                        product = new Toy(String.valueOf(id), name, price, quantity, brand, suitage, material); 
                         break;
                     case "Stationery":
                         String brandsta = JOptionPane.showInputDialog(this, "Enter Brand:");
@@ -85,8 +85,8 @@ public class EmployeeFrame extends BaseFrame {
                         return;
                 }
 
-                store.addProduct(product);  // Add product to store
-                loadProducts();  // Reload the product list
+                store.addProduct(product); 
+                loadProducts();
                 JOptionPane.showMessageDialog(this, "Product added successfully.");
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(this, "Invalid input for price or quantity.");
@@ -95,24 +95,21 @@ public class EmployeeFrame extends BaseFrame {
     }
 
     private void editProduct() {
-        int selectedIndex = productList.getSelectedIndex();
-        if (selectedIndex == -1) {
+        int selectedRow = productTable.getSelectedRow(); 
+
+        if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a product to edit.");
             return;
         }
 
-        String selectedProductInfo = productListModel.get(selectedIndex);
-        String[] parts = selectedProductInfo.split(","); 
-        String id = parts[0].split(":")[1].trim();
+        String id = (String) tableModel.getValueAt(selectedRow, 0);
 
-        // Get the current product information from the store
         Product existingProduct = store.getProductById(id);
         if (existingProduct == null) {
             JOptionPane.showMessageDialog(this, "Product not found.");
             return;
         }
 
-        // Prompt for common product attributes
         String newName = JOptionPane.showInputDialog(this, "Enter new Product Name:", existingProduct.getName());
         String newPriceStr = JOptionPane.showInputDialog(this, "Enter new Product Price:", existingProduct.getPrice());
         String newQuantityStr = JOptionPane.showInputDialog(this, "Enter new Quantity:", existingProduct.getQuantity());
@@ -126,7 +123,6 @@ public class EmployeeFrame extends BaseFrame {
                 existingProduct.setPrice(newPrice);
                 existingProduct.setQuantity(newQuantity);
 
-                // Update specific attributes based on product type
                 if (existingProduct instanceof Book) {
                     Book book = (Book) existingProduct;
                     String newAuthor = JOptionPane.showInputDialog(this, "Enter new Author:", book.getAuthor());
@@ -158,8 +154,8 @@ public class EmployeeFrame extends BaseFrame {
                     }
                 }
 
-                store.updateProduct(existingProduct);
-                loadProducts();
+                store.updateProduct(existingProduct); 
+                loadProducts(); 
                 JOptionPane.showMessageDialog(this, "Product updated successfully.");
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(this, "Invalid input for price or quantity.");
@@ -170,21 +166,24 @@ public class EmployeeFrame extends BaseFrame {
 
 
     private void removeProduct() {
-        int selectedIndex = productList.getSelectedIndex();
-        if (selectedIndex == -1) {
+        int selectedRow = productTable.getSelectedRow();
+
+        if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a product to remove.");
             return;
         }
 
-        String selectedProductInfo = productListModel.get(selectedIndex);
-        String[] parts = selectedProductInfo.split(","); 
-        String id = parts[0].split(":")[1].trim(); 
-        String name = parts[1].split(":")[1].trim(); 
+        String id = (String) tableModel.getValueAt(selectedRow, 0); 
+        String name = (String) tableModel.getValueAt(selectedRow, 1);
 
-        store.removeProduct(id);  
-        loadProducts(); 
-        JOptionPane.showMessageDialog(this,  name + " removed successfully."); 
+        int confirmation = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove " + name + "?", "Confirm Removal", JOptionPane.YES_NO_OPTION);
+        if (confirmation == JOptionPane.YES_OPTION) {
+            store.removeProduct(id);
+            loadProducts(); 
+            JOptionPane.showMessageDialog(this, name + " removed successfully."); 
+        }
     }
+
 
 
     private void logout() {

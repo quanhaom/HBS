@@ -27,7 +27,6 @@ public class CustomerFrame extends BaseFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Button Panel
         JPanel buttonPanel = new JPanel();
         JButton addToCartButton = new JButton("Add to Cart");
         JButton viewCartButton = new JButton("View Cart");
@@ -39,7 +38,6 @@ public class CustomerFrame extends BaseFrame {
         buttonPanel.add(logoutButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // Action listeners
         addToCartButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -72,9 +70,11 @@ public class CustomerFrame extends BaseFrame {
     }
 
     private void addToCart() {
-        String selectedProduct = productList.getSelectedValue();
-        if (selectedProduct != null && !selectedProduct.equals("No products found.")) {
-            String productId = selectedProduct.split(", ")[0].split(": ")[1];
+        int selectedRow = productTable.getSelectedRow();
+
+        if (selectedRow != -1) {
+            String productId = (String) tableModel.getValueAt(selectedRow, 0);
+            
             for (Product product : store.getProducts()) {
                 if (product.getId().equals(productId)) {
                     cart.add(product);
@@ -87,6 +87,7 @@ public class CustomerFrame extends BaseFrame {
             JOptionPane.showMessageDialog(this, "Please select a valid product to add to cart.");
         }
     }
+
 
     private void viewCart() {
         if (cart.isEmpty()) {

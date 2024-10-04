@@ -10,7 +10,7 @@ public class ProductFrame extends EmployeeFrame {
     private ManagerFrame managerFrame;
 
     public ProductFrame(Store store, ManagerFrame managerFrame) {
-        super(store,null);  // Call BaseFrame constructor
+        super(store,null);
         this.managerFrame = managerFrame;
         setTitle("Product Frame");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

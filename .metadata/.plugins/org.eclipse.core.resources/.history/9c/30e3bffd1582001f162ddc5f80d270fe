@@ -1,0 +1,29 @@
+package frame;
+
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+
+
+import services.Store;
+
+public class ProductFrame extends EmployeeFrame {
+	
+    private ManagerFrame managerFrame;
+
+    public ProductFrame(Store store, ManagerFrame managerFrame) {
+    	backButton = new JButton("Back");
+        actionPanel.add(backButton);
+        backButton.addActionListener(e -> back());
+        super(store,null);  // Call BaseFrame constructor
+        this.managerFrame = managerFrame;
+        setTitle("Product Frame");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+    }
+    private void back() {
+    	setVisible(false);
+		managerFrame.setVisible(true);
+    }
+}

@@ -17,7 +17,6 @@ public class Person {
 		this.role = role; 
 	}
 
-	// Getters
 	public String getId() {
 		return id;
 	}

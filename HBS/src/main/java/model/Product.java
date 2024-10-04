@@ -29,7 +29,6 @@ public class Product {
         return quantity;
     }
 
-    // Setters
     public void setId(String id) {
         this.id = id;
     }
