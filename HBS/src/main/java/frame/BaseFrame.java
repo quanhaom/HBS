@@ -76,7 +76,7 @@ public abstract class BaseFrame extends JFrame {
 
         add(searchPanel, BorderLayout.NORTH);
 
-        String[] columnNames = { "ID", "Name", "Price", "Quantity", "Brand", "Suit Age", "Material", "Author", "ISBN", "Publication Year", "Publisher" };
+        String[] columnNames = { "ID", "Type", "Name", "Price", "Quantity", "Brand", "Suit Age", "Material", "Author", "ISBN", "Publication Year", "Publisher" };
         tableModel = new DefaultTableModel(columnNames, 0);
         productTable = new JTable(tableModel);
 
@@ -116,27 +116,33 @@ public abstract class BaseFrame extends JFrame {
     }
 
     protected String[] getProductRowData(Product product) {
+        String type = getProductType(product); 
+
         if (product instanceof Book) {
             Book book = (Book) product;
             return new String[] {
-                book.getId(), book.getName(), String.format("%.2f", book.getPrice()), String.valueOf(book.getQuantity()),
-                "", "", "", book.getAuthor(), book.getIsbn(), String.valueOf(book.getPublicationYear()), book.getPublisher()
+                book.getId(), type, book.getName(), String.format("%.2f", book.getPrice()), String.valueOf(book.getQuantity()),
+                "", "","", book.getAuthor(), book.getIsbn(), String.valueOf(book.getPublicationYear()), book.getPublisher() 
             };
         } else if (product instanceof Toy) {
             Toy toy = (Toy) product;
             return new String[] {
-                toy.getId(), toy.getName(), String.format("%.2f", toy.getPrice()), String.valueOf(toy.getQuantity()),
-                toy.getBrand(), String.valueOf(toy.getSuitAge()), toy.getMaterial(), "", "", "", ""
+                toy.getId(), type, toy.getName(), String.format("%.2f", toy.getPrice()), String.valueOf(toy.getQuantity()),
+                toy.getBrand(), String.valueOf(toy.getSuitAge()), toy.getMaterial(), "", "", ""
             };
         } else if (product instanceof Stationery) {
             Stationery stationery = (Stationery) product;
             return new String[] {
-                stationery.getId(), stationery.getName(), String.format("%.2f", stationery.getPrice()), String.valueOf(stationery.getQuantity()),
-                stationery.getBrand(), "", stationery.getMaterial(), "", "", "", ""
+                stationery.getId(), type, stationery.getName(), String.format("%.2f", stationery.getPrice()), String.valueOf(stationery.getQuantity()),
+                stationery.getBrand(), "", stationery.getMaterial(), "", "", ""
             };
         }
         return new String[] { "Unknown", "", "", "", "", "", "", "", "", "", "" };
     }
+
+
+
+
 
     protected List<Product> sortProducts(List<Product> products) {
         String selectedCriteria = (String) sortOptions.getSelectedItem();
@@ -194,28 +200,43 @@ public abstract class BaseFrame extends JFrame {
                 String[] rowData = getProductRowData(product);
                 tableModel.addRow(rowData);
             }
-        } else {
-            suggestionLabel.setText("No products found.");
         }
     }
 
     private boolean productMatchesQuery(Product product, String query) {
         query = query.toLowerCase();
-        if (product.getId().toLowerCase().contains(query) || product.getName().toLowerCase().contains(query)) {
+
+        if (product.getId().toLowerCase().contains(query) || 
+            product.getName().toLowerCase().contains(query) || 
+            String.valueOf(product.getPrice()).contains(query) ||
+            String.valueOf(product.getQuantity()).contains(query) || 
+            getProductType(product).toLowerCase().contains(query)) { // Check product type
             return true;
         }
+
         if (product instanceof Book) {
             Book book = (Book) product;
-            return book.getAuthor().toLowerCase().contains(query) || book.getIsbn().toLowerCase().contains(query);
+            return book.getAuthor().toLowerCase().contains(query) || 
+                   book.getIsbn().toLowerCase().contains(query) ||
+                   String.valueOf(book.getPublicationYear()).contains(query)||
+                   book.getPublisher().contains(query);
         }
+
+
         if (product instanceof Toy) {
             Toy toy = (Toy) product;
-            return toy.getBrand().toLowerCase().contains(query) || toy.getMaterial().toLowerCase().contains(query);
+            return toy.getBrand().toLowerCase().contains(query) || 
+                   toy.getMaterial().toLowerCase().contains(query) ||
+                   String.valueOf(toy.getSuitAge()).contains(query);
         }
+
         if (product instanceof Stationery) {
             Stationery stationery = (Stationery) product;
-            return stationery.getBrand().toLowerCase().contains(query) || stationery.getMaterial().toLowerCase().contains(query);
+            return stationery.getBrand().toLowerCase().contains(query) || 
+                   stationery.getMaterial().toLowerCase().contains(query);
         }
-        return false;
+
+        return false; 
     }
+
 }
