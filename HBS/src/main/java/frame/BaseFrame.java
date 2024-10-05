@@ -19,6 +19,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.TableColumn;
 import model.Book;
 import model.Product;
 import model.Stationery;
@@ -32,8 +33,8 @@ public abstract class BaseFrame extends JFrame {
     protected JTextField searchField;
     protected JLabel suggestionLabel;
     protected JComboBox<String> sortOptions;
-    protected static final int WIDTH = 1000;
-    protected static final int HEIGHT = 700;
+    protected static final int WIDTH = 1300;
+    protected static final int HEIGHT = 800;
 
     public BaseFrame(Store store) {
         this.store = store;
@@ -79,6 +80,16 @@ public abstract class BaseFrame extends JFrame {
         String[] columnNames = { "ID", "Type", "Name", "Price", "Quantity", "Brand", "Suit Age", "Material", "Author", "ISBN", "Publication Year", "Publisher" };
         tableModel = new DefaultTableModel(columnNames, 0);
         productTable = new JTable(tableModel);
+        
+        productTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        productTable.setFillsViewportHeight(true); 
+
+        int[] columnWidths = {20, 60, 300, 50, 50, 100, 60, 75, 100, 100, 150, 225}; 
+        for (int i = 0; i < columnWidths.length; i++) {
+            TableColumn column = productTable.getColumnModel().getColumn(i);
+            column.setPreferredWidth(columnWidths[i]); 
+            column.setResizable(true); 
+        }
 
         add(new JScrollPane(productTable), BorderLayout.CENTER);
 
@@ -139,10 +150,6 @@ public abstract class BaseFrame extends JFrame {
         }
         return new String[] { "Unknown", "", "", "", "", "", "", "", "", "", "" };
     }
-
-
-
-
 
     protected List<Product> sortProducts(List<Product> products) {
         String selectedCriteria = (String) sortOptions.getSelectedItem();
@@ -210,7 +217,7 @@ public abstract class BaseFrame extends JFrame {
             product.getName().toLowerCase().contains(query) || 
             String.valueOf(product.getPrice()).contains(query) ||
             String.valueOf(product.getQuantity()).contains(query) || 
-            getProductType(product).toLowerCase().contains(query)) { // Check product type
+            getProductType(product).toLowerCase().contains(query)) {
             return true;
         }
 
@@ -218,10 +225,9 @@ public abstract class BaseFrame extends JFrame {
             Book book = (Book) product;
             return book.getAuthor().toLowerCase().contains(query) || 
                    book.getIsbn().toLowerCase().contains(query) ||
-                   String.valueOf(book.getPublicationYear()).contains(query)||
+                   String.valueOf(book.getPublicationYear()).contains(query) ||
                    book.getPublisher().contains(query);
         }
-
 
         if (product instanceof Toy) {
             Toy toy = (Toy) product;
@@ -238,5 +244,4 @@ public abstract class BaseFrame extends JFrame {
 
         return false; 
     }
-
 }

@@ -1,0 +1,120 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+//... (other imports)
+
+public class CustomerFrame extends BaseFrame {
+    private List<Product> cart;
+    private LoginFrame loginFrame;
+    private String loggedInUsername; // Store the logged-in username
+    private JLabel greetingLabel; // Label to display the greeting
+    private JTextField searchField; // Field for searching products
+    private JButton searchButton; // Button to trigger search
+
+    public CustomerFrame(Store store, LoginFrame loginFrame, String loggedInUsername) {
+        super(store);
+        this.cart = new ArrayList<>();
+        this.loginFrame = loginFrame;
+        this.loggedInUsername = loggedInUsername;
+
+        setTitle("Customer Frame");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+
+        // Create a panel for the greeting label and set its layout
+        JPanel greetingPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); // Right-align the greeting
+        greetingLabel = new JLabel(); // Initialize the greeting label
+        greetingPanel.add(greetingLabel); // Add label to the greeting panel
+        add(greetingPanel, BorderLayout.NORTH); // Add the greeting panel to the top of the frame
+
+        // Fetch and display the user's name with a greeting
+        String name = fetchUserName();
+        if (name != null) {
+            greetingLabel.setText("Hello, " + name + "!"); // Display the greeting
+            greetingLabel.setToolTipText("Click to log out or edit profile"); // Optional tooltip
+        }
+
+        // Create a panel for the search field and button
+        JPanel searchPanel = new JPanel();
+        searchField = new JTextField(20); // Create a search field with 20 columns
+        searchButton = new JButton("Search"); // Create a search button
+        searchPanel.add(searchField); // Add the search field to the panel
+        searchPanel.add(searchButton); // Add the search button to the panel
+        add(searchPanel, BorderLayout.CENTER); // Add the search panel to the center of the frame
+
+        // Create a panel for buttons
+        JPanel buttonPanel = new JPanel();
+        JButton addToCartButton = new JButton("Add to Cart");
+        JButton viewCartButton = new JButton("View Cart");
+        JButton checkoutButton = new JButton("Check out");
+        JButton logoutButton = new JButton("Log out");
+        buttonPanel.add(addToCartButton);
+        buttonPanel.add(viewCartButton);
+        buttonPanel.add(checkoutButton);
+        buttonPanel.add(logoutButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        addToCartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addToCart();
+            }
+        });
+
+        viewCartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewCart();
+            }
+        });
+
+        checkoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                checkout();
+            }
+        });
+
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logout();
+            }
+        });
+
+        // Action for greeting label click
+        greetingLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                showGreetingOptions();
+            }
+        });
+
+        // Action for search button click
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchProducts(searchField.getText());
+            }
+        });
+
+        displayAllProducts();
+    }
+
+    // Method to search products based on the search term
+    private void searchProducts(String searchTerm) {
+        // Implement the logic to search for products using the searchTerm
+        // This can involve filtering the products displayed on the UI
+        // You can use your existing product list to perform the search
+        // For now, just display a message box
+        JOptionPane.showMessageDialog(this, "Searching for: " + searchTerm);
+    }
+
+    //... (rest of your code remains unchanged)
+}

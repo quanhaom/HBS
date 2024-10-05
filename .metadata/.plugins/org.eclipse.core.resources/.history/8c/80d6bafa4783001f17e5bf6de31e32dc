@@ -1,0 +1,103 @@
+package frame;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class EditPro extends JFrame {
+    private JTextField nameField;
+    private JTextField phoneField;
+    private String loggedInUsername; // Store the username for querying the database
+    private CustomerFrame customerFrame;
+
+    public EditPro(CustomerFrame customerFrame, String loggedInUsername) {
+        this.customerFrame = customerFrame;
+        this.loggedInUsername = loggedInUsername;
+
+        setTitle("Edit Profile");
+        setSize(300, 200);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new GridLayout(4, 2));
+
+        // Labels and text fields for user info
+        JLabel nameLabel = new JLabel("Name:");
+        nameField = new JTextField();
+        JLabel phoneLabel = new JLabel("Phone:");
+        phoneField = new JTextField();
+
+        // Fetch existing user info
+        fetchUserInfo();
+
+        // Add components to the frame
+        add(nameLabel);
+        add(nameField);
+        add(phoneLabel);
+        add(phoneField);
+
+        JButton applyButton = new JButton("Apply");
+        JButton cancelButton = new JButton("Cancel");
+
+        applyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                applyChanges();
+            }
+        });
+
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose(); // Close the EditPro frame
+                customerFrame.setVisible(true); // Return to CustomerFrame
+            }
+        });
+
+        add(applyButton);
+        add(cancelButton);
+    }
+
+    // Fetch the user's current information from the database
+    private void fetchUserInfo() {
+        String query = "SELECT name, phone FROM users WHERE username = ?"; // Adjust based on your table structure
+
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, loggedInUsername);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                nameField.setText(rs.getString("name"));
+                phoneField.setText(rs.getString("phone"));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error fetching user information: " + e.getMessage());
+        }
+    }
+
+    // Apply changes to the user's information in the database
+    private void applyChanges() {
+        String newName = nameField.getText();
+        String newPhone = phoneField.getText();
+
+        // Here you would implement logic to update the database with the new values
+        String updateQuery = "UPDATE users SET name = ?, phone = ? WHERE username = ?";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
+             PreparedStatement stmt = conn.prepareStatement(updateQuery)) {
+            stmt.setString(1, newName);
+            stmt.setString(2, newPhone);
+            stmt.setString(3, loggedInUsername);
+            stmt.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Profile updated successfully.");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error updating profile: " + e.getMessage());
+        }
+    }
+}

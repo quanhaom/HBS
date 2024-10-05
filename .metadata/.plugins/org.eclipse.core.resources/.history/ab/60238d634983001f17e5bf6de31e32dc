@@ -1,0 +1,124 @@
+package frame;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class EditPro extends JFrame {
+    private JTextField usernameField;
+    private JTextField passwordField; // Keep this as a JTextField for visible password
+    private JTextField nameField;
+    private JTextField dobField;
+    private JTextField phoneField;
+    private JTextField idCardField;
+    private JLabel pointLabel; // Display points as a label since it can't be edited
+    private JLabel roleLabel; // Display role as a label since it can't be edited
+    private String loggedInUsername; // To fetch user details
+
+    public EditPro(CustomerFrame a, String loggedInUsername) {
+        this.loggedInUsername = loggedInUsername;
+
+        setTitle("Edit Profile");
+        setSize(400, 400);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new GridLayout(0, 2));
+
+        // Create input fields
+        usernameField = new JTextField();
+        passwordField = new JTextField(); // Use JTextField for visible password
+        nameField = new JTextField();
+        dobField = new JTextField();
+        phoneField = new JTextField();
+        idCardField = new JTextField();
+        pointLabel = new JLabel(); // Set points as a label
+        roleLabel = new JLabel("Customer"); // Set role as a fixed label
+
+        // Add components to the frame
+        add(new JLabel("Username:"));
+        add(usernameField);
+        add(new JLabel("Password:"));
+        add(passwordField);
+        add(new JLabel("Name:"));
+        add(nameField);
+        add(new JLabel("Role:"));
+        add(roleLabel);
+        add(new JLabel("Date of Birth:"));
+        add(dobField);
+        add(new JLabel("Phone:"));
+        add(phoneField);
+        add(new JLabel("ID Card:"));
+        add(idCardField);
+        add(new JLabel("Points:"));
+        add(pointLabel); // Add point label
+
+        // Create Apply and Cancel buttons
+        JButton applyButton = new JButton("Apply");
+
+        applyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                applyChanges();
+                dispose();
+                
+            }
+        });
+
+
+
+        add(applyButton);
+
+        // Fetch the user's information to display after initializing fields
+        fetchUserInfo();
+    }
+
+    // Fetch the user's information from the database
+    private void fetchUserInfo() {
+        String query = "SELECT * FROM users WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, loggedInUsername);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                usernameField.setText(rs.getString("username"));
+                passwordField.setText(rs.getString("password")); // Show password
+                nameField.setText(rs.getString("name"));
+                dobField.setText(rs.getString("dob")); // Format as needed
+                phoneField.setText(rs.getString("phone"));
+                idCardField.setText(rs.getString("id_card"));
+                pointLabel.setText(rs.getString("point")); // Set points as label text
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error fetching user information: " + e.getMessage());
+        }
+    }
+
+    // Method to apply changes to the user's profile
+    private void applyChanges() {
+        String query = "UPDATE users SET username = ?, password = ?, name = ?, dob = ?, phone = ?, id_card = ? WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, usernameField.getText());
+            stmt.setString(2, passwordField.getText()); // Store updated password
+            stmt.setString(3, nameField.getText());
+            stmt.setString(4, dobField.getText()); // Format as needed
+            stmt.setString(5, phoneField.getText());
+            stmt.setString(6, idCardField.getText());
+            stmt.setString(7, loggedInUsername); // Condition to update the correct user
+
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated > 0) {
+                JOptionPane.showMessageDialog(this, "Profile updated successfully.");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error updating user information: " + e.getMessage());
+        }
+    }
+}

@@ -1,0 +1,175 @@
+package frame;
+
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+
+import model.Product;
+import services.Store;
+
+public class CustomerFrame extends BaseFrame {
+    private List<Product> cart;
+    private LoginFrame loginFrame;
+    private JTable productTable; // Table to display products
+    private DefaultTableModel tableModel; // Model for the table
+    private JTextField searchField; // Search field for product search
+
+    public CustomerFrame(Store store, LoginFrame loginFrame) {
+        super(store);
+        this.cart = new ArrayList<>();
+        this.loginFrame = loginFrame;
+
+        setTitle("Customer Frame");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+
+        // Create a panel for the search field
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        searchField = new JTextField(20); // Create a search field with 20 columns
+        JButton searchButton = new JButton("Search"); // Button for searching
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+        add(searchPanel, BorderLayout.NORTH); // Add search panel to the top
+
+        // Create a table to display products
+        tableModel = new DefaultTableModel(new String[]{"ID", "Name", "Price"}, 0);
+        productTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(productTable);
+        add(scrollPane, BorderLayout.CENTER); // Add table to the center
+
+        // Create button panel
+        JPanel buttonPanel = new JPanel();
+        JButton addToCartButton = new JButton("Add to Cart");
+        JButton viewCartButton = new JButton("View Cart");
+        JButton checkoutButton = new JButton("Check out");
+        JButton logoutButton = new JButton("Log out");
+        buttonPanel.add(addToCartButton);
+        buttonPanel.add(viewCartButton);
+        buttonPanel.add(checkoutButton);
+        buttonPanel.add(logoutButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Add action listeners
+        addToCartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addToCart();
+            }
+        });
+
+        viewCartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewCart();
+            }
+        });
+
+        checkoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                checkout();
+            }
+        });
+
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logout();
+            }
+        });
+
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchProducts(searchField.getText().trim());
+            }
+        });
+
+        // Display all products initially
+        displayAllProducts();
+    }
+
+    private void displayAllProducts() {
+        // Clear the existing rows in the table
+        tableModel.setRowCount(0);
+        // Fetch products from the store and display them in the table
+        for (Product product : store.getProducts()) {
+            tableModel.addRow(new Object[]{product.getId(), product.getName(), product.getPrice()});
+        }
+    }
+
+    private void addToCart() {
+        int selectedRow = productTable.getSelectedRow();
+
+        if (selectedRow != -1) {
+            String productId = (String) tableModel.getValueAt(selectedRow, 0);
+            
+            for (Product product : store.getProducts()) {
+                if (product.getId().equals(productId)) {
+                    cart.add(product);
+                    JOptionPane.showMessageDialog(this, product.getName() + " has been added to your cart.");
+                    return;
+                }
+            }
+            JOptionPane.showMessageDialog(this, "Product not found in the store.");
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a valid product to add to cart.");
+        }
+    }
+
+    private void viewCart() {
+        if (cart.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Your cart is empty.");
+            return;
+        }
+
+        StringBuilder cartContents = new StringBuilder("Your Cart:\n");
+        for (Product product : cart) {
+            cartContents.append(String.format("%s - Price: %.2f\n", product.getName(), product.getPrice()));
+        }
+        JOptionPane.showMessageDialog(this, cartContents.toString());
+    }
+
+    private void checkout() {
+        if (cart.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Your cart is empty.");
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this, "Checkout successful!");
+        cart.clear();
+    }
+
+    private void logout() {
+        this.dispose();
+        loginFrame.setVisible(true);
+    }
+
+    // Method to search products based on the search term
+    private void searchProducts(String searchTerm) {
+        // Clear the existing rows in the table
+        tableModel.setRowCount(0);
+        // Fetch products from the store and filter them based on the search term
+        for (Product product : store.getProducts()) {
+            if (product.getName().toLowerCase().contains(searchTerm.toLowerCase())) {
+                tableModel.addRow(new Object[]{product.getId(), product.getName(), product.getPrice()});
+            }
+        }
+        if (tableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "No products found matching: " + searchTerm);
+        }
+    }
+}

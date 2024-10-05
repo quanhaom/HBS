@@ -1,0 +1,169 @@
+package frame;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class EditPro extends JFrame {
+    private JTextField usernameField;
+    private JTextField passwordField;
+    private JTextField nameField;
+    private JTextField dobField;
+    private JTextField phoneField;
+    private JTextField idCardField;
+    private JLabel pointLabel; 
+    private JLabel roleLabel; 
+    private String loggedInUsername; // Tên người dùng đang đăng nhập
+    private CustomerFrame customerFrame; 
+
+    public EditPro(CustomerFrame customerFrame, String loggedInUsername) {
+        this.customerFrame = customerFrame; 
+        this.loggedInUsername = loggedInUsername; // Lưu tên người dùng
+
+        setTitle("Edit Profile");
+        setSize(400, 400);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 0.5;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        // Tạo các trường nhập liệu
+        usernameField = new JTextField();
+        passwordField = new JTextField(); // Hiện mật khẩu
+        nameField = new JTextField();
+        dobField = new JTextField();
+        phoneField = new JTextField();
+        idCardField = new JTextField();
+        pointLabel = new JLabel(); 
+        roleLabel = new JLabel("Customer");
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        add(new JLabel("Username:"), gbc);
+
+        gbc.gridx = 1;
+        add(usernameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        add(new JLabel("Password:"), gbc);
+
+        gbc.gridx = 1;
+        add(passwordField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        add(new JLabel("Name:"), gbc);
+
+        gbc.gridx = 1;
+        add(nameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        add(new JLabel("Role:"), gbc);
+
+        gbc.gridx = 1;
+        add(roleLabel, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        add(new JLabel("Date of Birth:"), gbc);
+
+        gbc.gridx = 1;
+        add(dobField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        add(new JLabel("Phone:"), gbc);
+
+        gbc.gridx = 1;
+        add(phoneField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        add(new JLabel("ID Card:"), gbc);
+
+        gbc.gridx = 1;
+        add(idCardField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        add(new JLabel("Points:"), gbc);
+
+        gbc.gridx = 1;
+        add(pointLabel, gbc); 
+
+        JButton applyButton = new JButton("Apply");
+
+        applyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                applyChanges();
+                dispose(); 
+                customerFrame.setVisible(true); 
+            }
+        });
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(applyButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 8;
+        gbc.gridwidth = 2; // Span the buttons across both columns
+        add(buttonPanel, gbc);
+
+        // Fetch the user's information to display after initializing fields
+        fetchUserInfo();
+    }
+
+    // Fetch the user's information from the database
+    private void fetchUserInfo() {
+        String query = "SELECT * FROM users WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, loggedInUsername);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                usernameField.setText(rs.getString("username"));
+                passwordField.setText(rs.getString("password")); // Hiện mật khẩu
+                nameField.setText(rs.getString("name"));
+                dobField.setText(rs.getString("dob")); // Định dạng nếu cần
+                phoneField.setText(rs.getString("phone"));
+                idCardField.setText(rs.getString("id_card"));
+                pointLabel.setText(rs.getString("point") != null ? rs.getString("point") : "0");
+
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error fetching user info: " + e.getMessage());
+        }
+    }
+
+    // Apply the changes to the user's information
+    private void applyChanges() {
+        String query = "UPDATE users SET password = ?, name = ?, dob = ?, phone = ?, id_card = ? WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, passwordField.getText());
+            stmt.setString(2, nameField.getText());
+            stmt.setString(3, dobField.getText()); // Kiểm tra định dạng
+            stmt.setString(4, phoneField.getText());
+            stmt.setString(5, idCardField.getText());
+            stmt.setString(6, loggedInUsername);
+            stmt.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Profile updated successfully!");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error updating profile: " + e.getMessage());
+        }
+    }
+}

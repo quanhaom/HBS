@@ -1,0 +1,91 @@
+package frame;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import model.User; // Assuming you have a User class representing user data
+
+public class EditPro extends JDialog {
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JTextField nameField;
+    private JTextField dobField;
+    private JTextField phoneField;
+    private JTextField idCardField;
+    private JTextField pointField;
+    
+    private User user; // The user whose profile is being edited
+
+    public EditPro(Frame owner, User user) {
+        super(owner, "Edit Profile", true);
+        this.user = user;
+
+        setLayout(new GridLayout(8, 2));
+        add(new JLabel("Username:"));
+        usernameField = new JTextField(user.getUsername());
+        add(usernameField);
+
+        add(new JLabel("Password:"));
+        passwordField = new JPasswordField(user.getPassword());
+        add(passwordField);
+
+        add(new JLabel("Name:"));
+        nameField = new JTextField(user.getName());
+        add(nameField);
+
+        add(new JLabel("Date of Birth:"));
+        dobField = new JTextField(user.getDob());
+        add(dobField);
+
+        add(new JLabel("Phone:"));
+        phoneField = new JTextField(user.getPhone());
+        add(phoneField);
+
+        add(new JLabel("ID Card:"));
+        idCardField = new JTextField(user.getIdCard());
+        add(idCardField);
+
+        add(new JLabel("Point:"));
+        pointField = new JTextField(String.valueOf(user.getPoint()));
+        add(pointField);
+
+        JButton saveButton = new JButton("Save Changes");
+        JButton cancelButton = new JButton("Cancel");
+
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveChanges();
+            }
+        });
+
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+
+        add(saveButton);
+        add(cancelButton);
+
+        pack();
+        setLocationRelativeTo(owner);
+    }
+
+    private void saveChanges() {
+        // Validate and save changes to user profile
+        user.setUsername(usernameField.getText());
+        user.setPassword(new String(passwordField.getPassword()));
+        user.setName(nameField.getText());
+        user.setDob(dobField.getText());
+        user.setPhone(phoneField.getText());
+        user.setIdCard(idCardField.getText());
+        user.setPoint(Integer.parseInt(pointField.getText()));
+
+        JOptionPane.showMessageDialog(this, "Profile updated successfully!");
+        dispose(); // Close the dialog after saving
+    }
+}
