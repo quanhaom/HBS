@@ -86,7 +86,7 @@ public class LoginFrame extends JFrame {
                 String name = user.getName(); // Get the user's name
                 switch (user.getRole()) {
                     case "Employee":
-                        new EmployeeFrame(store, this, name).setVisible(true);
+                        new EmployeeFrame(store, this,user.getId(), name).setVisible(true);
                         break;
                     case "Customer":
                         new CustomerFrame(store, this, user.getId(), name).setVisible(true); // Use user.getId()

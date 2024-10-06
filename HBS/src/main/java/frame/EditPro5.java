@@ -5,13 +5,13 @@ import java.sql.*;
 import javax.swing.*;
 
 public class EditPro5 extends JFrame {
-    private JTextField idField, usernameField, passwordField, nameField, dobField, phoneField, idCardField, pointField;
-    private JLabel roleLabel;
+    private JTextField idField, usernameField, passwordField, nameField, dobField, phoneField, idCardField, pointField, roleField;
     private JButton applyButton, cancelButton;
     private CustomerFrame customerFrame;
     private String userId;
+    private String role;
 
-    public EditPro5(CustomerFrame customerFrame, String userId) {
+    public EditPro5(String userId) {
         this.customerFrame = customerFrame;
         this.userId = userId;
         setTitle("Edit Profile");
@@ -36,8 +36,9 @@ public class EditPro5 extends JFrame {
         add(nameField);
 
         add(new JLabel("Role:"));
-        roleLabel = new JLabel("Customer");
-        add(roleLabel);
+        roleField = new JTextField();
+        roleField.setEditable(false);
+        add(roleField); 
 
         add(new JLabel("DOB (YYYY-MM-DD):"));
         dobField = new JTextField();
@@ -78,7 +79,6 @@ public class EditPro5 extends JFrame {
             ResultSet resultSet = statement.executeQuery();
             
             if (resultSet.next()) {
-                // Populate fields with user information
                 idField.setText(resultSet.getString("id"));
                 usernameField.setText(resultSet.getString("username"));
                 passwordField.setText(resultSet.getString("password"));
@@ -86,12 +86,22 @@ public class EditPro5 extends JFrame {
                 dobField.setText(resultSet.getString("dob"));
                 phoneField.setText(resultSet.getString("phone"));
                 idCardField.setText(resultSet.getString("id_card"));
-
-                // Handle points field
+                
+                role = resultSet.getString("role");
+                roleField.setText(role);
+                
                 String points = resultSet.getString("point");
-                pointField.setText(points != null ? points : "0"); 
-                pointField.setEditable(false); 
+                pointField.setText(points != null ? points : "0");
+                pointField.setEditable(false);
 
+                if ("customer".equalsIgnoreCase(role)) {
+                    usernameField.setEditable(false);
+                    passwordField.setEditable(false);
+                    nameField.setEditable(false);
+                    dobField.setEditable(false);
+                    phoneField.setEditable(false);
+                    idCardField.setEditable(false);
+                } 
             } else {
                 JOptionPane.showMessageDialog(this, "User not found.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -101,7 +111,6 @@ public class EditPro5 extends JFrame {
         }
     }
 
-
     private void applyChanges() {
         String username = usernameField.getText();
         String password = passwordField.getText();
@@ -109,7 +118,6 @@ public class EditPro5 extends JFrame {
         String dob = dobField.getText();
         String phone = phoneField.getText();
         String idCard = idCardField.getText();
-        String point = pointField.getText();
 
         if (username.isEmpty() || password.isEmpty() || name.isEmpty() || dob.isEmpty() || phone.isEmpty() || idCard.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields except Points.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -124,6 +132,8 @@ public class EditPro5 extends JFrame {
             JOptionPane.showMessageDialog(this, "Date of Birth must be in the format YYYY-MM-DD and must be a valid date.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        
+        // Update the user's information in the database
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
              PreparedStatement statement = connection.prepareStatement("UPDATE users SET username=?, password=?, name=?, dob=?, phone=?, id_card=? WHERE id=?")) {
             statement.setString(1, username);
@@ -138,7 +148,6 @@ public class EditPro5 extends JFrame {
             if (rowsUpdated > 0) {
                 JOptionPane.showMessageDialog(this, "Profile updated successfully.");
                 dispose();
-                customerFrame.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Error updating profile. No rows affected.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -149,11 +158,12 @@ public class EditPro5 extends JFrame {
     }
 
     private boolean isValidDate(String date) {
+        // Validate the date format
         String regex = "\\d{4}-\\d{2}-\\d{2}";
         if (!date.matches(regex)) {
             return false;
         }
-        
+
         String[] parts = date.split("-");
         int year = Integer.parseInt(parts[0]);
         int month = Integer.parseInt(parts[1]);
@@ -171,9 +181,8 @@ public class EditPro5 extends JFrame {
         return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
     }
 
-
     private void cancel() {
         dispose();
-        customerFrame.setVisible(true);
     }
 }
+

@@ -109,7 +109,7 @@ public class CustomerFrame extends BaseFrame {
         }
     }
     public void openEditProfile() {
-        new EditPro5(this, userId);
+        new EditPro5( userId);
     }
     private void addToCart() {
         int selectedRow = productTable.getSelectedRow();
@@ -155,7 +155,6 @@ public class CustomerFrame extends BaseFrame {
 
     private void logout() {
         this.dispose();
-        loginFrame.setVisible(true);
     }
     private void showLogout() {
         int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to log out?", "Logout Confirmation",
