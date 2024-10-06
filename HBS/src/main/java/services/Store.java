@@ -22,10 +22,17 @@ public class Store {
 
     public List<Person> getUsers() {
         List<Person> users = new ArrayList<>();
-        String sql = "SELECT * FROM users";
+        String sql = "SELECT id, username, password, name, role FROM users"; // Select specific fields
         try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                Person person = new Person(rs.getString("username"), rs.getString("name"), rs.getString("password"), rs.getString("role"));
+                // Create a new Person object with the specified fields
+                Person person = new Person(
+                    rs.getString("id"),            // Assuming id is an int
+                    rs.getString("username"),
+                    rs.getString("password"),
+                    rs.getString("name"),
+                    rs.getString("role")
+                );
                 users.add(person);
             }
         } catch (SQLException e) {
@@ -33,6 +40,7 @@ public class Store {
         }
         return users;
     }
+
 
     public void addProduct(Product product) {
         String sqlMaxId = "SELECT MAX(id) FROM products";
@@ -340,6 +348,7 @@ public class Store {
         }
         return 1; 
     }
+    
 }
 
 

@@ -8,8 +8,8 @@ import services.Store;
 public class Customer extends Person {
     private Store store; 
 
-    public Customer(String id, String name, String password, Store store) {
-        super(id, name, password, "Customer"); 
+    public Customer(String id, String username, String password,String name, Store store) {
+        super(id, username, password,name, "Customer"); 
         this.store = store; 
     }
 

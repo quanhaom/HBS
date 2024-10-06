@@ -1,0 +1,111 @@
+package model;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public class Person {
+    private String id;
+    private String name;
+    private String password;
+    private String role;
+    private String dob;
+    private String phone;
+    private String idCard;
+    private int point;
+
+    // Constructor for basic details
+    public Person(String id, String name, String password, String role) {
+        this(id, name, password, role, null, null, null, 0);
+    }
+
+    // Full constructor
+    public Person(String id, String name, String password, String role, String dob, String phone, String idCard, int point) {
+        this.id = id;
+        this.name = name;
+        this.password = password;
+        this.role = role;
+        this.dob = dob;
+        this.phone = phone;
+        this.idCard = idCard;
+        this.point = point;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public String getDob() {
+        return dob;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getIdCard() {
+        return idCard;
+    }
+
+    public int getPoint() {
+        return point;
+    }
+
+    public void setDob(String dob) {
+        this.dob = dob;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setIdCard(String idCard) {
+        this.idCard = idCard;
+    }
+
+    public void setPoint(int point) {
+        this.point = point;
+    }
+
+    public void addUser(Connection connection) {
+        String sql = "INSERT INTO users (id, name, password, role, dob, phone, id_card, point) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, this.id);
+            stmt.setString(2, this.name);
+            stmt.setString(3, this.password);
+            stmt.setString(4, this.role);
+            stmt.setString(5, this.dob);
+            stmt.setString(6, this.phone);
+            stmt.setString(7, this.idCard);
+            stmt.setInt(8, this.point);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", role='" + role + '\'' +
+                ", dob='" + dob + '\'' +
+                ", phone='" + phone + '\'' +
+                ", idCard='" + idCard + '\'' +
+                ", point=" + point +
+                '}';
+    }
+}

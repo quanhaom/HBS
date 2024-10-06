@@ -7,6 +7,7 @@ import services.Store;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -31,6 +32,15 @@ public class SignUpFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new GridLayout(7, 2)); 
+        
+        //icon
+        URL url = getClass().getClassLoader().getResource("icon.png");
+        if (url != null) {
+            Image icon = Toolkit.getDefaultToolkit().getImage(url);
+            setIconImage(icon);
+        } else {
+            System.err.println("Icon not found!");
+        }
 
         add(new JLabel("Username:"));
         usernameField = new JTextField();
@@ -87,8 +97,8 @@ public class SignUpFrame extends JFrame {
             return;
         }
 
-        if (phone.length() > 11) {
-            JOptionPane.showMessageDialog(this, "Phone number must be less than or equal to 11 digits!", "Error", JOptionPane.ERROR_MESSAGE);
+        if (!phone.matches("\\d{10,11}")) {
+            JOptionPane.showMessageDialog(this, "Phone number must have 10 or 11 digits.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 

@@ -16,10 +16,12 @@ import services.Store;
 public class EmployeeFrame extends BaseFrame {
 
     private LoginFrame loginFrame;
+    private String userName;
 
-    public EmployeeFrame(Store store, LoginFrame loginFrame) {
+    public EmployeeFrame(Store store, LoginFrame loginFrame,String username) {
         super(store); 
         this.loginFrame = loginFrame;
+        this.userName = userName;
 
         setTitle("Employee Frame");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -1,8 +1,11 @@
 package frame;
 
 import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,6 +28,15 @@ public class LoginFrame extends JFrame {
         setSize(300, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); 
+        
+        //icon
+        URL url = getClass().getClassLoader().getResource("icon.png");
+        if (url != null) {
+            Image icon = Toolkit.getDefaultToolkit().getImage(url);
+            setIconImage(icon);
+        } else {
+            System.err.println("Icon not found!");
+        }
 
         JLabel userIdLabel = new JLabel("User ID:");
         userIdField = new JTextField(15);
@@ -53,11 +65,11 @@ public class LoginFrame extends JFrame {
         dontLoginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new StrangerFrame(store , null);
+                new StrangerFrame(store, null);
                 dispose();
-                return;
             }
         });
+        
         signUpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -65,24 +77,22 @@ public class LoginFrame extends JFrame {
                 dispose();
             }
         });
-
-
     }
-    	
 
-    private void login(String userId, String password) {
+    private void login(String username, String password) {
         List<Person> users = store.getUsers(); 
         for (Person user : users) {
-            if (user.getId().equals(userId) && user.getPassword().equals(password)) {
+            if (user.getUsername().equals(username) && user.getPassword().equals(password)) { // Fixed method name
+                String name = user.getName(); // Get the user's name
                 switch (user.getRole()) {
                     case "Employee":
-                        new EmployeeFrame(store, this).setVisible(true);
+                        new EmployeeFrame(store, this, name).setVisible(true);
                         break;
                     case "Customer":
-                        new CustomerFrame(store, this).setVisible(true);
+                        new CustomerFrame(store, this, user.getId(), name).setVisible(true); // Use user.getId()
                         break;
                     case "Manager":
-                        new ManagerFrame(store,this).setVisible(true);
+                        new ManagerFrame(store, this, name).setVisible(true);
                         break;
                     default:
                         JOptionPane.showMessageDialog(this, "Unknown role: " + user.getRole());

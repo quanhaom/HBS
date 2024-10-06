@@ -1,0 +1,165 @@
+package frame;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import model.Product;
+import services.Store;
+
+public class CustomerFrame extends BaseFrame {
+    private List<Product> cart;
+    private LoginFrame loginFrame;
+    private JLabel greetingLabel;
+    private String userId;// Add JLabel for greeting
+
+    public CustomerFrame(Store store, LoginFrame loginFrame, String userId) { // Add userName parameter
+        super(store);  
+        this.cart = new ArrayList<>(); 
+        this.loginFrame = loginFrame; 
+        this.userId = userId;
+
+        setTitle("Customer Frame");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Create a panel for buttons
+        JPanel buttonPanel = new JPanel();
+        JButton addToCartButton = new JButton("Add to Cart");
+        JButton viewCartButton = new JButton("View Cart");
+        JButton checkoutButton = new JButton("Check out");
+
+        buttonPanel.add(viewCartButton);
+        buttonPanel.add(checkoutButton);
+        buttonPanel.add(addToCartButton); // Add "Add to Cart" button to the button panel
+        
+        // Create a new panel for the greeting and add the label to it
+        JPanel greetingPanel = new JPanel();
+        greetingLabel = new JLabel("Hello, " + userId); // Set greeting text
+        greetingPanel.add(greetingLabel); // Add greeting label to the greeting panel
+
+        // Add mouse listener to the greeting label
+        greetingLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                showGreetingOptions();
+            }
+        });
+
+        // Create a main panel to hold both the greeting panel and button panel
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.add(greetingPanel, BorderLayout.NORTH); // Add greeting panel to the top
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH); // Add button panel to the bottom
+
+        // Add the main panel to the frame
+        add(mainPanel, BorderLayout.SOUTH); // Position main panel at the bottom
+
+        // Action listeners for buttons
+        addToCartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addToCart();
+            }
+        });
+
+        viewCartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewCart();
+            }
+        });
+
+        checkoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                checkout();
+            }
+        });
+
+
+
+        displayAllProducts();
+    }
+
+    private void showGreetingOptions() {
+        String[] options = {"Log out", "Edit Profile"}; // Options to show
+        int choice = JOptionPane.showOptionDialog(this, "Choose an option:", "Options",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+
+        if (choice == 0) {
+            logout();
+        } else if (choice == 1) {
+            openEditProfile();
+        }
+    }
+    public void openEditProfile() {
+        String userId = getUserId(); // Replace this method with actual logic to get the current user's ID
+        new EditPro(this, userId);
+    }
+
+    private String getUserId() {
+        // Assuming you have a way to get the currently logged-in user's ID
+        return "1"; // Replace this with the actual logic to retrieve the user's ID
+    }
+
+
+
+
+    private void addToCart() {
+        int selectedRow = productTable.getSelectedRow();
+
+        if (selectedRow != -1) {
+            String productId = (String) tableModel.getValueAt(selectedRow, 0);
+            
+            for (Product product : store.getProducts()) {
+                if (product.getId().equals(productId)) {
+                    cart.add(product);
+                    JOptionPane.showMessageDialog(this, product.getName() + " has been added to your cart.");
+                    return;
+                }
+            }
+            JOptionPane.showMessageDialog(this, "Product not found in the store.");
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a valid product to add to cart.");
+        }
+    }
+
+    private void viewCart() {
+        if (cart.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Your cart is empty.");
+            return;
+        }
+
+        StringBuilder cartContents = new StringBuilder("Your Cart:\n");
+        for (Product product : cart) {
+            cartContents.append(String.format("%s - Price: %.2f\n", product.getName(), product.getPrice()));
+        }
+        JOptionPane.showMessageDialog(this, cartContents.toString());
+    }
+
+    private void checkout() {
+        if (cart.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Your cart is empty.");
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this, "Checkout successful!");
+        cart.clear();
+    }
+
+    private void logout() {
+        this.dispose();
+        loginFrame.setVisible(true);
+    }
+}

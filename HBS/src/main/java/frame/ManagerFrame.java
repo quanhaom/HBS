@@ -12,10 +12,12 @@ import services.Store;
 public class ManagerFrame extends JFrame {
     private Store store; 
     private LoginFrame loginFrame;
+    private String userName ;
     
-    public ManagerFrame(Store store,LoginFrame loginFrame) { 
+    public ManagerFrame(Store store,LoginFrame loginFrame,String userName) { 
         this.store = store;
         this.loginFrame=loginFrame;
+        this.userName = userName;
 
         setTitle("Manager Frame");
         setSize(600, 400);
@@ -59,13 +61,13 @@ public class ManagerFrame extends JFrame {
     }
 
     private void showProducts() {
-        ProductFrame productFrame = new ProductFrame(store, this); // Correctly passing the instance
+        ProductFrame productFrame = new ProductFrame(store, this);
         productFrame.setVisible(true);
         this.setVisible(false);
     }
 
     private void showEmployees() {
-    	EmpmanaFrame empmanaFrame = new EmpmanaFrame(this); // Correctly passing the instance
+    	EmpmanaFrame empmanaFrame = new EmpmanaFrame(this);
         empmanaFrame.setVisible(true);
         this.setVisible(false);
     }

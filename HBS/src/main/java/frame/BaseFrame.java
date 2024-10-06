@@ -33,7 +33,7 @@ public abstract class BaseFrame extends JFrame {
     protected JTextField searchField;
     protected JLabel suggestionLabel;
     protected JComboBox<String> sortOptions;
-    protected static final int WIDTH = 1300;
+    protected static final int WIDTH = 1200;
     protected static final int HEIGHT = 800;
 
     public BaseFrame(Store store) {
@@ -84,7 +84,7 @@ public abstract class BaseFrame extends JFrame {
         productTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         productTable.setFillsViewportHeight(true); 
 
-        int[] columnWidths = {20, 60, 300, 50, 50, 100, 60, 75, 100, 100, 150, 225}; 
+        int[] columnWidths = {20, 60, 300, 50, 50, 100, 60, 75, 100, 100, 125, 225}; 
         for (int i = 0; i < columnWidths.length; i++) {
             TableColumn column = productTable.getColumnModel().getColumn(i);
             column.setPreferredWidth(columnWidths[i]); 
