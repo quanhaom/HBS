@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <session version="1.0">
-<refactoring accessors="true" comment="Delete element from project &apos;HBS&apos;&#x0D;&#x0A;- Original project: &apos;HBS&apos;&#x0D;&#x0A;- Original element: &apos;frame.EditPro.java&apos;" description="Delete element" element1="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;frame{EditPro.java" elements="1" flags="589830" id="org.eclipse.jdt.ui.delete" resources="0" stamp="1728235669138" subPackages="false" version="1.0"/>
+<refactoring accessors="true" comment="Delete element from project &apos;HBS&apos;&#x0D;&#x0A;- Original project: &apos;HBS&apos;&#x0D;&#x0A;- Original element: &apos;frame.ManageraFrame.java&apos;" description="Delete element" element1="/src&lt;frame{ManageraFrame.java" elements="1" flags="589830" id="org.eclipse.jdt.ui.delete" resources="0" stamp="1728295673786" subPackages="false" version="1.0"/>
 </session>
