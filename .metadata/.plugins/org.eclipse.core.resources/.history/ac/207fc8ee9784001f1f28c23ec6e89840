@@ -1,0 +1,111 @@
+package model;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class Product {
+    private String id;
+    private String name;
+    private double price;
+    private int quantity;
+
+    public Product(String id, String name, double price, int quantity) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "Product [ID=" + id + ", Name=" + name + ", Price=" + price + "]";
+    }
+    public Product getProductById(String productId) {
+        Product product = null; 
+        String sql = "SELECT * FROM products WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, productId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) { 
+                    String type = rs.getString("type");
+
+                    switch (type) {
+                        case "Toy":
+                            product = new Toy(
+                                rs.getString("id"),
+                                rs.getString("name"),
+                                rs.getDouble("price"),
+                                rs.getInt("quantity"),
+                                rs.getString("brand"),
+                                rs.getInt("suitage"),
+                                rs.getString("material")
+                            );
+                            break;
+                        case "Stationery":
+                            product = new Stationery(
+                                rs.getString("id"),
+                                rs.getString("name"),
+                                rs.getDouble("price"),
+                                rs.getInt("quantity"),
+                                rs.getString("brand"),
+                                rs.getString("material")
+                            );
+                            break;
+                        case "Book":
+                            product = new Book(
+                                rs.getString("id"),
+                                rs.getString("name"),
+                                rs.getDouble("price"),
+                                rs.getInt("quantity"),
+                                rs.getString("author"),
+                                rs.getString("isbn"),
+                                rs.getInt("publication_year"),
+                                rs.getString("publisher")
+                            );
+                            break;
+                        default:
+                            // Handle unexpected types
+                            break;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return product; 
+    }
+    
+}

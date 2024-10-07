@@ -1,0 +1,25 @@
+package frame;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class CustomDialog extends JDialog {
+    public CustomDialog(Frame owner, String message) {
+        super(owner, "Checkout Information", true); // Modal dialog
+
+        setLayout(new BorderLayout());
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        JLabel messageLabel = new JLabel(message);
+        messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(messageLabel, BorderLayout.CENTER);
+
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(e -> dispose()); // Close the dialog
+        add(okButton, BorderLayout.SOUTH);
+
+        setSize(300, 150); // Set the size of the dialog
+        setLocationRelativeTo(owner); // Center the dialog over the owner
+        setResizable(false); // Make the dialog non-resizable
+    }
+}

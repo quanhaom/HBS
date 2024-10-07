@@ -8,12 +8,15 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.net.URL;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -25,6 +28,8 @@ import model.Product;
 import model.Stationery;
 import services.Store;
 import model.Toy;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public abstract class BaseFrame extends JFrame {
     protected Store store;
@@ -33,14 +38,16 @@ public abstract class BaseFrame extends JFrame {
     protected JTextField searchField;
     protected JLabel suggestionLabel;
     protected JComboBox<String> sortOptions;
-    protected static final int WIDTH = 1200;
-    protected static final int HEIGHT = 800;
+    protected JLabel timeLabel;  // JLabel for displaying the time
+    protected static final int WIDTH = 1285;
+    protected static final int HEIGHT = 900;
 
     public BaseFrame(Store store) {
         this.store = store;
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
+        // Load icon
         URL url = getClass().getClassLoader().getResource("icon.png");
         if (url != null) {
             Image icon = Toolkit.getDefaultToolkit().getImage(url);
@@ -49,9 +56,9 @@ public abstract class BaseFrame extends JFrame {
             System.err.println("Icon not found!");
         }
         setLocationRelativeTo(null);
-
         setLayout(new BorderLayout());
 
+     // Search panel setup
         JPanel searchPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -75,7 +82,20 @@ public abstract class BaseFrame extends JFrame {
         suggestionLabel = new JLabel();
         searchPanel.add(suggestionLabel, gbc);
 
-        add(searchPanel, BorderLayout.NORTH);
+        // Create a new JPanel to hold both the searchPanel and timeLabel
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(searchPanel, BorderLayout.NORTH);
+
+        // Add JLabel for time
+        timeLabel = new JLabel();
+        timeLabel.setHorizontalAlignment(JLabel.CENTER);
+        topPanel.add(timeLabel, BorderLayout.SOUTH);
+
+        // Add the combined panel to the frame
+        add(topPanel, BorderLayout.NORTH);
+
+        // ... (rest of your constructor code)
+
 
         String[] columnNames = { "ID", "Type", "Name", "Price", "Quantity", "Brand", "Suit Age", "Material", "Author", "ISBN", "Publication Year", "Publisher" };
         tableModel = new DefaultTableModel(columnNames, 0);
@@ -110,14 +130,30 @@ public abstract class BaseFrame extends JFrame {
             }
         });
 
+        // Start Timer to update the time
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                updateCurrentTime();
+            }
+        }, 0, 1000); // Update every second
+
         displayAllProducts();
+    }
+
+    // Method to update current time
+    private void updateCurrentTime() {
+        SwingUtilities.invokeLater(() -> {
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+            timeLabel.setText("Current Time: " + sdf.format(new Date()));
+        });
     }
 
     protected void displayAllProducts() {
         tableModel.setRowCount(0);  
 
         List<Product> products = store.getProducts();
-
         products = sortProducts(products);
 
         for (Product product : products) {
@@ -227,21 +263,17 @@ public abstract class BaseFrame extends JFrame {
                    book.getIsbn().toLowerCase().contains(query) ||
                    String.valueOf(book.getPublicationYear()).contains(query) ||
                    book.getPublisher().contains(query);
-        }
-
-        if (product instanceof Toy) {
+        } else if (product instanceof Toy) {
             Toy toy = (Toy) product;
             return toy.getBrand().toLowerCase().contains(query) || 
-                   toy.getMaterial().toLowerCase().contains(query) ||
-                   String.valueOf(toy.getSuitAge()).contains(query);
-        }
-
-        if (product instanceof Stationery) {
+                   String.valueOf(toy.getSuitAge()).contains(query) || 
+                   toy.getMaterial().toLowerCase().contains(query);
+        } else if (product instanceof Stationery) {
             Stationery stationery = (Stationery) product;
             return stationery.getBrand().toLowerCase().contains(query) || 
                    stationery.getMaterial().toLowerCase().contains(query);
         }
 
-        return false; 
+        return false;
     }
 }

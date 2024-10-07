@@ -19,17 +19,13 @@ import services.Store;
 
 public class CustomerFrame extends BaseFrame {
     private List<Product> cart;
-    private LoginFrame loginFrame;
     private JLabel greetingLabel;
     private String userId;
-    private String Name;
 
     public CustomerFrame(Store store, LoginFrame loginFrame, String userId, String Name) { 
         super(store);  
-        this.cart = new ArrayList<>(); 
-        this.loginFrame = loginFrame; 
+        this.cart = new ArrayList<>();  
         this.userId = userId;
-        this.Name = Name;
         setTitle("Customer Frame");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -44,7 +40,7 @@ public class CustomerFrame extends BaseFrame {
         buttonPanel.add(addToCartButton);
         JPanel greetingPanel = new JPanel();
         if (Name == null) {
-        	greetingLabel = new JLabel("Hello, Stranger");
+        	greetingLabel = new JLabel("Hello, Stranger ");
         	greetingPanel.add(greetingLabel);
             greetingLabel.addMouseListener(new MouseAdapter() {
                 @Override
@@ -149,9 +145,11 @@ public class CustomerFrame extends BaseFrame {
             return;
         }
 
+
         JOptionPane.showMessageDialog(this, "Checkout successful!");
         cart.clear();
     }
+
 
     private void logout() {
         this.dispose();

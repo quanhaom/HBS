@@ -7,12 +7,10 @@ import javax.swing.*;
 public class EditPro5 extends JFrame {
     private JTextField idField, usernameField, passwordField, nameField, dobField, phoneField, idCardField, pointField, roleField;
     private JButton applyButton, cancelButton;
-    private CustomerFrame customerFrame;
     private String userId;
     private String role;
 
     public EditPro5(String userId) {
-        this.customerFrame = customerFrame;
         this.userId = userId;
         setTitle("Edit Profile");
         setLayout(new GridLayout(10, 2));

@@ -1,0 +1,17 @@
+import java.io.*;
+import java.net.*;
+
+public class CheckoutClient {
+    public static void main(String[] args) {
+        sendCheckoutMessage("Customer checked out successfully!");
+    }
+
+    private static void sendCheckoutMessage(String message) {
+        try (Socket socket = new Socket("localhost", 12345);
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+            out.println(message);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}

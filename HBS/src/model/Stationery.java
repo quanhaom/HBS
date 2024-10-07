@@ -35,9 +35,4 @@ public class Stationery extends Product {
 		this.material = material;
 	}
 
-	@Override
-	public String toString() {
-		return "Stationery [ID=" + getId() + ", Name=" + getName() + ", Price=" + getPrice() + ", Quantity=" + getQuantity()
-				+ ", Brand=" + getBrand()  + ", Material=" + getMaterial() + "]";
-	}
 }

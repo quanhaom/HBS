@@ -1,6 +1,5 @@
 package frame;
 
-import model.Person;
 import services.Store;
 
 public class Main {

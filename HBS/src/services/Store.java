@@ -212,7 +212,6 @@ public class Store {
         String sql = "DELETE FROM products WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, productId); 
-            int rowsAffected = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -290,6 +289,16 @@ public class Store {
         
         return bookList; 
     }
+    public void updateWorkingHours(String userId, long duration) {
+        String query = "UPDATE users SET working_hours = working_hours + ? WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setLong(1, duration);
+            pstmt.setString(2, userId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace(); 
+        }
+    }
 
     public void updateProduct(Product product) {
         String sql = "UPDATE products SET name = ?, price = ?, quantity = ?, author = ?, isbn = ?, publisher = ?, brand = ?, material = ? WHERE id = ?"; // SQL query to update product details
@@ -330,7 +339,6 @@ public class Store {
 
             stmt.setString(9, product.getId());
 
-            int rowsAffected = stmt.executeUpdate(); 
         } catch (SQLException e) {
             e.printStackTrace(); 
         }

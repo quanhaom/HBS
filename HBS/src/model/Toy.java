@@ -33,10 +33,4 @@ public class Toy extends Product {
 		this.material = material;
 	}
 	
-
-	@Override
-	public String toString() {
-		return "Toy [ID=" + getId() + ", Name=" + getName() + ", Price=" + getPrice() + ", Quantity=" + getQuantity()
-				+ ", Brand" + getBrand() + ", Suitable Age= " + getSuitAge() + "Material = " + getMaterial() + "]";
-	}
 }

@@ -1,0 +1,20 @@
+
+package frame;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import model.Product;
+
+public class ShareData {
+    private static List<Product> sharedCart = new ArrayList<>();
+
+    public static List<Product> getSharedCart() {
+        return sharedCart;
+    }
+
+    public static void setSharedCart(List<Product> cart) {
+        sharedCart.clear();
+        sharedCart.addAll(cart);
+    }
+}

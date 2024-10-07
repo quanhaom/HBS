@@ -1,0 +1,37 @@
+package frame;
+
+import java.io.*;
+import java.net.*;
+
+public class CheckoutServer {
+    public static void main(String[] args) {
+        try (ServerSocket serverSocket = new ServerSocket(12345)) {
+            System.out.println("Server is listening on port 12345");
+            while (true) {
+                Socket socket = serverSocket.accept();
+                new CheckoutHandler(socket).start();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+
+class CheckoutHandler extends Thread {
+    private Socket socket;
+
+    public CheckoutHandler(Socket socket) {
+        this.socket = socket;
+    }
+
+    public void run() {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            String message = in.readLine();
+            System.out.println("Received from App 1: " + message);
+            // Here you can display the message in your GUI, e.g., using JOptionPane
+            javax.swing.JOptionPane.showMessageDialog(null, "Checkout message: " + message);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
