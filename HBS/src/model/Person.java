@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Person {
-    private String id;        // Assuming id is stored as a String
+    private String id;
     private String username;
     private String password;
     private String name;

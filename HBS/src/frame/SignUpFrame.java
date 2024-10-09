@@ -101,6 +101,10 @@ public class SignUpFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Phone number must have 10 or 11 digits.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        if (!phone.startsWith("0")) {
+            JOptionPane.showMessageDialog(this, "Phone number must start with 0.", "Error", JOptionPane.ERROR_MESSAGE);
+
+        }
 
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@")) {
             String sqlCheck = "SELECT COUNT(*) FROM users WHERE username = ?";

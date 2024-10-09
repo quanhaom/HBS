@@ -125,13 +125,16 @@ public class EditPro5 extends JFrame {
             JOptionPane.showMessageDialog(this, "Phone number must have 10 or 11 digits.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        if (!phone.startsWith("0")) {
+            JOptionPane.showMessageDialog(this, "Phone number must start with 0.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         if (!isValidDate(dob)) {
             JOptionPane.showMessageDialog(this, "Date of Birth must be in the format YYYY-MM-DD and must be a valid date.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        // Update the user's information in the database
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
              PreparedStatement statement = connection.prepareStatement("UPDATE users SET username=?, password=?, name=?, dob=?, phone=?, id_card=? WHERE id=?")) {
             statement.setString(1, username);
@@ -156,7 +159,6 @@ public class EditPro5 extends JFrame {
     }
 
     private boolean isValidDate(String date) {
-        // Validate the date format
         String regex = "\\d{4}-\\d{2}-\\d{2}";
         if (!date.matches(regex)) {
             return false;

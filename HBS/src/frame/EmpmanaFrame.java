@@ -44,7 +44,7 @@ public class EmpmanaFrame extends JFrame {
         actionPanel.add(backButton);
         backButton.addActionListener(e -> back());
 
-        salaryOptions = new JComboBox<>(new String[]{"Show Salary1", "Show Salary2", "Show Salary3"});
+        salaryOptions = new JComboBox<>(new String[]{"Show January salary", "Show February salary", "Show March salary"});
         salaryOptions.addActionListener(e -> updateSalaryDisplay());
         actionPanel.add(salaryOptions);
 
@@ -142,9 +142,12 @@ public class EmpmanaFrame extends JFrame {
             boolean validPhone;
             do {
                 phone = JOptionPane.showInputDialog(this, "Enter Phone:");
-                validPhone = phone.length() <= 11; 
-                if (!validPhone) {
-                    JOptionPane.showMessageDialog(this, "Phone number must be less than or equal to 11 digits!", "Error", JOptionPane.ERROR_MESSAGE);
+                validPhone = (phone.matches("\\d{10,11}") && phone.startsWith("0")); 
+                if (!phone.matches("\\d{10,11}")) {
+                    JOptionPane.showMessageDialog(this, "Phone number must be 10 or  11 digits!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                else if (!phone.startsWith("0")) {
+                	JOptionPane.showMessageDialog(this, "Phone number must start by 0!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } while (!validPhone);
 
@@ -160,7 +163,6 @@ public class EmpmanaFrame extends JFrame {
 
             String point = "0"; 
 
-            // Only prompt for point if the role is Customer or Employee
             if (role.equals("Customer")){
                 point = JOptionPane.showInputDialog(this, "Enter Point:");
             }
@@ -240,13 +242,12 @@ public class EmpmanaFrame extends JFrame {
                 }
             }
 
-            // Add new user data to the table model
             tableModel.addRow(new Object[]{id, username, password, name, role, dob, phone, idCard, 
-                (role.equals("Manager") ? workingHours : ""), 
-                (role.equals("Manager") ? "" : salary1), 
-                (role.equals("Manager") ? "" : salary2), 
-                (role.equals("Manager") ? "" : salary3), 
-                (role.equals("Customer") || role.equals("Employee") ? point : "")});
+                (role.equals("Employee") ? workingHours : ""), 
+                (role.equals("Employee") ? "" : salary1), 
+                (role.equals("Employee") ? "" : salary2), 
+                (role.equals("Employee") ? "" : salary3), 
+                (role.equals("Customer") ? point : "")});
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "An error occurred while adding the user!", "Error", JOptionPane.ERROR_MESSAGE);
