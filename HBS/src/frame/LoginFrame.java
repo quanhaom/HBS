@@ -70,7 +70,7 @@ public class LoginFrame extends JFrame {
         signUpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new SignUpFrame(LoginFrame.this); // Pass the current instance
+                new SignUpFrame(LoginFrame.this);
                 dispose();
             }
         });
@@ -79,14 +79,14 @@ public class LoginFrame extends JFrame {
     private void login(String username, String password) {
         List<Person> users = store.getUsers(); 
         for (Person user : users) {
-            if (user.getUsername().equals(username) && user.getPassword().equals(password)) { // Fixed method name
+            if (user.getUsername().equals(username) && user.getPassword().equals(password)) { 
                 String name = user.getName(); // Get the user's name
                 switch (user.getRole()) {
                     case "Employee":
                         new EmployeeFrame(store, this,user.getId(), name).setVisible(true);
                         break;
                     case "Customer":
-                        new CustomerFrame(store, this, user.getId(), name).setVisible(true); // Use user.getId()
+                        new CustomerFrame(store, this, user.getId(), name).setVisible(true); 
                         break;
                     case "Manager":
                         new ManagerFrame(store, this, name).setVisible(true);

@@ -32,5 +32,4 @@ public class Toy extends Product {
 	public void setMaterial(String material) {
 		this.material = material;
 	}
-	
 }

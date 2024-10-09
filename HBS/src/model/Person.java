@@ -41,17 +41,4 @@ public class Person {
         return role;
     }
 
-    public void addUser(Connection connection) {
-        String sql = "INSERT INTO users (id, username, name, password, role) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, this.id);
-            stmt.setString(2, this.username);
-            stmt.setString(3, this.name);
-            stmt.setString(4, this.password);
-            stmt.setString(5, this.role);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 }

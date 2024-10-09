@@ -46,8 +46,7 @@ public abstract class BaseFrame extends JFrame {
         this.store = store;
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        // Load icon
+
         URL url = getClass().getClassLoader().getResource("icon.png");
         if (url != null) {
             Image icon = Toolkit.getDefaultToolkit().getImage(url);
@@ -58,7 +57,6 @@ public abstract class BaseFrame extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-     // Search panel setup
         JPanel searchPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -126,20 +124,17 @@ public abstract class BaseFrame extends JFrame {
                 updateSearchSuggestions();
             }
         });
-
-        // Start Timer to update the time
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 updateCurrentTime();
             }
-        }, 0, 1000); // Update every second
+        }, 0, 1000);
 
         displayAllProducts();
     }
 
-    // Method to update current time
     private void updateCurrentTime() {
         SwingUtilities.invokeLater(() -> {
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");

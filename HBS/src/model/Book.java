@@ -46,9 +46,4 @@ public class Book extends Product {
 		this.publisher = publisher;
 	}
 
-	@Override
-	public String toString() {
-		return "Book [ID=" + getId() + ", Name=" + getName() + ", Price=" + getPrice() + ", Author=" + author
-				+ ", ISBN=" + isbn + ", Publication Year=" + publicationYear + ", Publisher=" + publisher + "]";
-	}
 }

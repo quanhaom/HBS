@@ -1,0 +1,45 @@
+package model;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
+public class Manager extends Employee {
+    private JTable employeeTable;  // Add a reference to the employee table
+    private DefaultTableModel tableModel;  // Add a reference to the table model
+
+    public Manager(String id, String username, String password, String name, String role,
+                   String dob, String phone, String idCard, int workingHours,
+                   double salary1, double salary2, double salary3, 
+                   JTable employeeTable, DefaultTableModel tableModel) {
+        super(id, username, password, name, role, dob, phone, idCard, workingHours, salary1, salary2, salary3);
+        this.employeeTable = employeeTable;  // Initialize the employee table reference
+        this.tableModel = tableModel;  // Initialize the table model reference
+    }
+
+    public double calculateTotalCompensation() {
+        return getSalary1() + getSalary2() + getSalary3(); 
+    }
+
+    // Method to remove a user from the table
+    public void removeUser() {
+        int selectedRow = employeeTable.getSelectedRow();
+        if (selectedRow != -1) {
+            int confirm = JOptionPane.showConfirmDialog(null, 
+                "Are you sure you want to remove this user?", 
+                "Confirm Removal", 
+                JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                String id = (String) tableModel.getValueAt(selectedRow, 0);
+                removeUserFromDatabase(id);
+                tableModel.removeRow(selectedRow);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Please select a user to remove.");
+        }
+    }
+
+    // Placeholder for the method to remove user from the database
+    private void removeUserFromDatabase(String id) {
+        // Implement your database removal logic here
+    }
+}

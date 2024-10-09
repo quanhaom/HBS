@@ -138,16 +138,28 @@ public class CustomerFrame extends BaseFrame {
         }
         JOptionPane.showMessageDialog(this, cartContents.toString());
     }
-
     private void checkout() {
         if (cart.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Your cart is empty.");
             return;
         }
 
+        StringBuilder checkoutSummary = new StringBuilder("You have checked out:\n");
+        for (Product product : cart) {
+            int currentQuantity = product.getQuantity();
+            if (currentQuantity <= 0) {
+                JOptionPane.showMessageDialog(this, "Cannot check out " + product.getName() + " due to insufficient stock.");
+                return;
+            }
+            int newQuantity = currentQuantity - 1; 
+            product.setQuantity(newQuantity);
+            store.updateProductQuantity(product.getId(), newQuantity);
+            checkoutSummary.append(String.format("%s - Price: %.2f\n", product.getName(), product.getPrice()));
+        }
 
-        JOptionPane.showMessageDialog(this, "Checkout successful!");
-        cart.clear();
+        JOptionPane.showMessageDialog(this, checkoutSummary.toString());
+        cart.clear(); 
+        displayAllProducts();
     }
 
 

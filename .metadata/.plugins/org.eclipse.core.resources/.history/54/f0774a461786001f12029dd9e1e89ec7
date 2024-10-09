@@ -1,0 +1,156 @@
+package model;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
+public class Manager extends Employee {
+
+    public Manager(String id, String username, String password, String name, String role,
+                   String dob, String phone, String idCard, int workingHours,
+                   double salary1, double salary2, double salary3) {
+        super(id, username, password, name, role, dob, phone, idCard, workingHours, salary1, salary2, salary3);
+    }
+
+    public double calculateTotalCompensation() {
+        return getSalary1() + getSalary2() + getSalary3(); 
+    }
+    public void addUser(DefaultTableModel tableModel) {
+        String sqlMaxId = "SELECT MAX(id) FROM users";
+        String id = "1";
+
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@")) {
+            try (PreparedStatement statement = connection.prepareStatement(sqlMaxId);
+                 ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    int maxId = resultSet.getInt(1);
+                    id = String.valueOf(maxId + 1);
+                }
+            }
+
+            String username = JOptionPane.showInputDialog(null, "Enter Username:");
+            String password = JOptionPane.showInputDialog(null, "Enter Password:");
+            String name = JOptionPane.showInputDialog(null, "Enter Name:");
+
+            String[] roles = {"Manager", "Customer", "Employee"};
+            String role = (String) JOptionPane.showInputDialog(null, "Select Role:", "Role Selection",
+                    JOptionPane.QUESTION_MESSAGE, null, roles, roles[0]);
+
+            String dob;
+            boolean isValidDate;
+            do {
+                dob = JOptionPane.showInputDialog(null, "Enter Date of Birth (YYYY-MM-DD):");
+                isValidDate = dob.matches("\\d{4}-\\d{2}-\\d{2}");
+                if (!isValidDate) {
+                    JOptionPane.showMessageDialog(null, "Date of Birth must be in the format YYYY-MM-DD!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } while (!isValidDate);
+
+            String phone;
+            boolean validPhone;
+            do {
+                phone = JOptionPane.showInputDialog(null, "Enter Phone:");
+                validPhone = (phone.matches("\\d{10,11}") && phone.startsWith("0"));
+                if (!phone.matches("\\d{10,11}")) {
+                    JOptionPane.showMessageDialog(null, "Phone number must be 10 or 11 digits!", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (!phone.startsWith("0")) {
+                    JOptionPane.showMessageDialog(null, "Phone number must start by 0!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } while (!validPhone);
+
+            String idCard = JOptionPane.showInputDialog(null, "Enter ID Card:");
+
+            // Initialize fields for employees
+            String workingHours = "0";
+            String salary1 = "0", salary2 = "0", salary3 = "0"; 
+            
+            // Initialize field for customers
+            String point = "0"; 
+
+            // Role-specific fields
+            if (role.equals("Employee")) {
+                salary1 = JOptionPane.showInputDialog(null, "Enter Salary1:");
+                salary2 = JOptionPane.showInputDialog(null, "Enter Salary2:");
+                salary3 = JOptionPane.showInputDialog(null, "Enter Salary3:");
+                workingHours = JOptionPane.showInputDialog(null, "Enter Working Hours:");
+            } else if (role.equals("Customer")) {
+                point = JOptionPane.showInputDialog(null, "Enter Point:");
+            }
+
+            boolean valid = false;
+            while (!valid) {
+                valid = true;
+
+                if (username.isEmpty() || password.isEmpty() || name.isEmpty() || dob.isEmpty() || phone.isEmpty() || idCard.isEmpty() || 
+                    (role.equals("Employee") && (workingHours.isEmpty() || salary1.isEmpty() || salary2.isEmpty() || salary3.isEmpty())) || 
+                    (role.equals("Customer") && point.isEmpty())) {
+                    
+                    JOptionPane.showMessageDialog(null, "Please fill in all fields!", "Error", JOptionPane.ERROR_MESSAGE);
+                    username = JOptionPane.showInputDialog(null, "Enter Username:", username);
+                    password = JOptionPane.showInputDialog(null, "Enter Password:", password);
+                    name = JOptionPane.showInputDialog(null, "Enter Name:", name);
+                    role = (String) JOptionPane.showInputDialog(null, "Select Role:", "Role Selection", JOptionPane.QUESTION_MESSAGE, null, roles, role);
+                    dob = JOptionPane.showInputDialog(null, "Enter Date of Birth (YYYY-MM-DD):", dob);
+                    phone = JOptionPane.showInputDialog(null, "Enter Phone:", phone);
+                    idCard = JOptionPane.showInputDialog(null, "Enter ID Card:", idCard);
+                    if (role.equals("Employee")) {
+                        workingHours = JOptionPane.showInputDialog(null, "Enter Working Hours:", workingHours);
+                        salary1 = JOptionPane.showInputDialog(null, "Enter Salary1:", salary1);
+                        salary2 = JOptionPane.showInputDialog(null, "Enter Salary2:", salary2);
+                        salary3 = JOptionPane.showInputDialog(null, "Enter Salary3:", salary3);
+                    }
+                    if (role.equals("Customer")) {
+                        point = JOptionPane.showInputDialog(null, "Enter Point:", point);
+                    }
+                    valid = false; 
+                }
+
+                String sqlCheck = "SELECT COUNT(*) FROM users WHERE username = ?";
+                try (PreparedStatement checkStatement = connection.prepareStatement(sqlCheck)) {
+                    checkStatement.setString(1, username);
+                    ResultSet resultSet = checkStatement.executeQuery();
+                    if (resultSet.next()) {
+                        int count = resultSet.getInt(1);
+                        if (count > 0) {
+                            JOptionPane.showMessageDialog(null, "Username already exists. Please choose another one!", "Error", JOptionPane.ERROR_MESSAGE);
+                            username = JOptionPane.showInputDialog(null, "Enter Username:", username);
+                            valid = false; 
+                        }
+                    }
+                }
+            }
+
+            String sqlInsert = "INSERT INTO users (id, username, password, name, role, dob, phone, id_card, working_hours, salary1, salary2, salary3, point) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement insertStatement = connection.prepareStatement(sqlInsert)) {
+                insertStatement.setString(1, id);
+                insertStatement.setString(2, username);
+                insertStatement.setString(3, password);
+                insertStatement.setString(4, name);
+                insertStatement.setString(5, role);
+                insertStatement.setString(6, dob);
+                insertStatement.setString(7, phone);
+                insertStatement.setString(8, idCard);
+                insertStatement.setString(9, role.equals("Employee") ? workingHours : null); 
+                insertStatement.setString(10, role.equals("Employee") ? salary1 : null);
+                insertStatement.setString(11, role.equals("Employee") ? salary2 : null);
+                insertStatement.setString(12, role.equals("Employee") ? salary3 : null);
+                insertStatement.setString(13, role.equals("Customer") ? point : null);
+                insertStatement.executeUpdate();
+            }
+
+            tableModel.addRow(new Object[]{id, username, password, name, role, dob, phone, idCard, 
+                (role.equals("Employee") ? workingHours : ""), 
+                (role.equals("Employee") ? salary1 : ""), 
+                (role.equals("Employee") ? salary2 : ""), 
+                (role.equals("Employee") ? salary3 : ""), 
+                (role.equals("Customer") ? point : "")});
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred while adding the user!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+}

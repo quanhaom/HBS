@@ -16,7 +16,7 @@ import services.Store;
 public class ManagerFrame extends JFrame {
     private Store store; 
     private LoginFrame loginFrame;
-    private JLabel greetingLabel;  // Greeting label to display the manager's name
+    private JLabel greetingLabel;
 
     public ManagerFrame(Store store, LoginFrame loginFrame, String Name) { 
         this.store = store;
@@ -41,7 +41,7 @@ public class ManagerFrame extends JFrame {
         buttonPanel.add(employeesButton);
         buttonPanel.add(storeButton);
         buttonPanel.add(logoutButton);
-        add(greetingPanel, BorderLayout.NORTH);  // Add greeting panel to the frame
+        add(greetingPanel, BorderLayout.NORTH);
         add(buttonPanel, BorderLayout.CENTER);
 
         logoutButton.addActionListener(e -> logout());

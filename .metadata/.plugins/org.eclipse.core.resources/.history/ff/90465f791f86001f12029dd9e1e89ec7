@@ -1,0 +1,186 @@
+package model;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
+import services.MySQLConnection;
+
+public class Employee extends Person {
+    private double salary1;
+    private double salary2;
+    private double salary3;
+    private String dob;
+    private String phone;
+    private String idCard;
+    private int workingHours;
+    private Connection connection;
+
+    public Employee(String id, String username, String password, String name, String role, String dob, String phone, String idCard, int workingHours, double salary1, double salary2, double salary3) {
+        super(id, username, password, name, role);
+        this.dob = dob;
+        this.phone = phone;
+        this.idCard = idCard;
+        this.workingHours = workingHours;
+        this.salary1 = salary1;
+
+        try {
+            this.connection = new MySQLConnection().getConnection(); // Direct MySQL connection
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Getters and Setters
+    public String getDob() {
+        return dob;
+    }
+
+    public void setDob(String dob) {
+        this.dob = dob;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getIdCard() {
+        return idCard;
+    }
+
+    public void setIdCard(String idCard) {
+        this.idCard = idCard;
+    }
+
+    public int getWorkingHours() {
+        return workingHours;
+    }
+
+    public void setWorkingHours(int workingHours) {
+        this.workingHours = workingHours;
+    }
+
+    public double getSalary1() {
+        return salary1;
+    }
+
+    public double getSalary2() {
+        return salary2;
+    }
+
+    public double getSalary3() {
+        return salary3;
+    }
+
+    public void addProduct(Product product) {
+        String sqlMaxId = "SELECT MAX(id) FROM products";
+        String sqlInsert = "INSERT INTO products (id, name, price, quantity, brand, suitage, material, type, author, isbn, publication_year, publisher) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            int newId = 1;
+            try (PreparedStatement stmtMax = connection.prepareStatement(sqlMaxId);
+                 ResultSet rs = stmtMax.executeQuery()) {
+                if (rs.next()) {
+                    newId = rs.getInt(1) + 1; // Increment max id by 1
+                }
+            }
+
+            try (PreparedStatement stmtInsert = connection.prepareStatement(sqlInsert)) {
+                stmtInsert.setInt(1, newId);
+                stmtInsert.setString(2, product.getName());
+                stmtInsert.setDouble(3, product.getPrice());
+                stmtInsert.setInt(4, product.getQuantity());
+
+                if (product instanceof Toy) {
+                    Toy toy = (Toy) product;
+                    stmtInsert.setString(5, toy.getBrand());
+                    stmtInsert.setInt(6, toy.getSuitAge());
+                    stmtInsert.setString(7, toy.getMaterial());
+                    stmtInsert.setString(8, "Toy");
+                    stmtInsert.setNull(9, Types.VARCHAR);
+                    stmtInsert.setNull(10, Types.VARCHAR);
+                    stmtInsert.setNull(11, Types.INTEGER);
+                    stmtInsert.setNull(12, Types.VARCHAR);
+                } else if (product instanceof Stationery) {
+                    Stationery stationery = (Stationery) product;
+                    stmtInsert.setString(5, stationery.getBrand());
+                    stmtInsert.setNull(6, Types.INTEGER);
+                    stmtInsert.setString(7, stationery.getMaterial());
+                    stmtInsert.setString(8, "Stationery");
+                    stmtInsert.setNull(9, Types.VARCHAR);
+                    stmtInsert.setNull(10, Types.VARCHAR);
+                    stmtInsert.setNull(11, Types.INTEGER);
+                    stmtInsert.setNull(12, Types.VARCHAR);
+                } else if (product instanceof Book) {
+                    Book book = (Book) product;
+                    stmtInsert.setNull(5, Types.VARCHAR);
+                    stmtInsert.setNull(6, Types.INTEGER);
+                    stmtInsert.setNull(7, Types.VARCHAR);
+                    stmtInsert.setString(8, "Book");
+                    stmtInsert.setString(9, book.getAuthor());
+                    stmtInsert.setString(10, book.getIsbn());
+                    stmtInsert.setInt(11, book.getPublicationYear());
+                    stmtInsert.setString(12, book.getPublisher());
+                }
+
+                stmtInsert.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeProduct(int selectedRow, DefaultTableModel tableModel) {
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(null, "Please select a product to remove.");
+            return;
+        }
+
+        String id = (String) tableModel.getValueAt(selectedRow, 0);
+        String name = (String) tableModel.getValueAt(selectedRow, 1);
+
+        int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to remove " + name + "?", "Confirm Removal", JOptionPane.YES_NO_OPTION);
+        if (confirmation == JOptionPane.YES_OPTION) {
+            removeProduct(id);
+            loadProducts(tableModel); // Pass the table model to load products
+            JOptionPane.showMessageDialog(null, name + " removed successfully.");
+        }
+    }
+
+    public void removeProduct(String productId) {
+        String sql = "DELETE FROM products WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, productId);
+            stmt.executeUpdate(); // Execute the update to delete the product
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadProducts(DefaultTableModel tableModel) {
+        displayAllProducts(tableModel);
+    }
+
+    protected void displayAllProducts(DefaultTableModel tableModel) {
+        tableModel.setRowCount(0);  
+
+        List<Product> products = store.getProducts(); // Assuming store is defined somewhere
+        products = sortProducts(products); // Assuming sortProducts method exists
+
+        for (Product product : products) {
+            String[] rowData = getProductRowData(product); // Assuming this method exists
+            tableModel.addRow(rowData);
+        }
+    }
+
+}

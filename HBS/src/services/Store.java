@@ -299,7 +299,6 @@ public class Store {
             e.printStackTrace(); 
         }
     }
-
     public void updateProduct(Product product) {
         String sql = "UPDATE products SET name = ?, price = ?, quantity = ?, author = ?, isbn = ?, publisher = ?, brand = ?, material = ? WHERE id = ?"; // SQL query to update product details
 
@@ -336,14 +335,12 @@ public class Store {
                 stmt.setNull(7, Types.VARCHAR);
                 stmt.setNull(8, Types.VARCHAR); 
             }
-
             stmt.setString(9, product.getId());
 
         } catch (SQLException e) {
             e.printStackTrace(); 
         }
     }
-
     public int getNextProductId() {
         String sqlMaxId = "SELECT COALESCE(MAX(id), 0) FROM products";
         try (PreparedStatement stmt = connection.prepareStatement(sqlMaxId);
@@ -356,6 +353,17 @@ public class Store {
         }
         return 1; 
     }
+    public void updateProductQuantity(String productId, int newQuantity) {
+        String sql = "UPDATE products SET quantity = ? WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, newQuantity);
+            stmt.setString(2, productId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     
 }
 

@@ -1,0 +1,183 @@
+package frame;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import model.Manager;
+
+import java.awt.*;
+import java.sql.*;
+
+public class EmpmanaFrame extends JFrame {
+    private JTable employeeTable;
+    private DefaultTableModel tableModel;
+    private JButton addButton, editButton, removeButton, backButton;
+    private JComboBox<String> salaryOptions;
+    private ManagerFrame managerFrame;
+    private Manager manager = new Manager();
+    private JComboBox<String> roleOptions;
+
+    public EmpmanaFrame(ManagerFrame managerFrame) {
+        this.managerFrame = managerFrame;
+
+        setTitle("User Management");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        String[] columnNames = {"ID", "Username", "Password", "Name", "DOB", "Phone", "ID Card", "Working Hours", "Salary", "Point"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        employeeTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(employeeTable);
+        add(scrollPane, BorderLayout.CENTER);
+
+        JPanel actionPanel = new JPanel();
+        add(actionPanel, BorderLayout.SOUTH);
+
+        addButton = new JButton("Add User");
+        actionPanel.add(addButton);
+        addButton.addActionListener(e -> manager.addUser(tableModel));
+
+        editButton = new JButton("Edit User");
+        actionPanel.add(editButton);
+        editButton.addActionListener(e -> manager.editUser(tableModel, employeeTable));
+
+        removeButton = new JButton("Remove User");
+        actionPanel.add(removeButton);
+        removeButton.addActionListener(e -> removeUser());
+
+        backButton = new JButton("Back");
+        actionPanel.add(backButton);
+        backButton.addActionListener(e -> back());
+
+        salaryOptions = new JComboBox<>(new String[]{"Show January salary", "Show February salary", "Show March salary"});
+        salaryOptions.addActionListener(e -> updateSalaryDisplay());
+        actionPanel.add(salaryOptions);
+
+        roleOptions = new JComboBox<>(new String[]{"All", "Manager", "Customer", "Employee"});
+        roleOptions.addActionListener(e -> updateTableBasedOnRole());
+        actionPanel.add(roleOptions);
+
+        setSize(800, 600);
+        setLocationRelativeTo(null);
+        setVisible(true);
+        
+        // Load all users on initialization
+        loadUsersFromDatabase("All");
+    }
+
+    private void loadUsersFromDatabase(String roleFilter) {
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
+             Statement statement = connection.createStatement()) {
+
+            // Modify the query based on the selected role
+            String query = "SELECT * FROM users";
+            if (!roleFilter.equals("All")) {
+                query += " WHERE role = '" + roleFilter + "'";
+            }
+
+            ResultSet resultSet = statement.executeQuery(query);
+            tableModel.setRowCount(0); // Clear existing rows
+
+            while (resultSet.next()) {
+                String id = resultSet.getString("id");
+                String username = resultSet.getString("username");
+                String password = resultSet.getString("password");
+                String name = resultSet.getString("name");
+                String dob = resultSet.getString("dob");
+                String phone = resultSet.getString("phone");
+                String idCard = resultSet.getString("id_card");
+                String workingHours = resultSet.getString("working_hours");
+                String salary1 = resultSet.getString("salary1");
+                String salary2 = resultSet.getString("salary2");
+                String salary3 = resultSet.getString("salary3");
+                String point = resultSet.getString("point");
+
+                // Prepare row data based on the role
+                String[] row = new String[10];
+                row[0] = id != null ? id : "";
+                row[1] = username != null ? username : "";
+                row[2] = password != null ? password : "";
+                row[3] = name != null ? name : "";
+                row[4] = dob != null ? dob : "";
+                row[5] = phone != null ? phone : "";
+                row[6] = idCard != null ? idCard : "";
+
+                if ("Customer".equals(resultSet.getString("role"))) {
+                    row[7] = ""; // Working Hours
+                    row[8] = ""; // Salary
+                    row[9] = point != null ? point : ""; // Point
+                } else if ("Employee".equals(resultSet.getString("role"))) {
+                    row[7] = workingHours != null ? workingHours : ""; // Working Hours
+                    row[8] = salary1 != null ? salary1 : ""; // Salary
+                    row[9] = ""; // Point
+                } else if ("Manager".equals(resultSet.getString("role"))) {
+                    row[7] = ""; // No working hours
+                    row[8] = ""; // No salary
+                    row[9] = ""; // No point
+                }
+
+                tableModel.addRow(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading data from database.");
+        }
+    }
+
+    private void updateSalaryDisplay() {
+        int selectedOption = salaryOptions.getSelectedIndex();
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            String id = (String) tableModel.getValueAt(i, 0);
+            try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
+                 Statement statement = connection.createStatement()) {
+                String query = "SELECT salary1, salary2, salary3 FROM users WHERE id = " + id;
+                ResultSet resultSet = statement.executeQuery(query);
+                if (resultSet.next()) {
+                    String salary = switch (selectedOption) {
+                        case 0 -> resultSet.getString("salary1");
+                        case 1 -> resultSet.getString("salary2");
+                        case 2 -> resultSet.getString("salary3");
+                        default -> "";
+                    };
+                    tableModel.setValueAt(salary, i, 8); // Update salary column
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void removeUser() {
+        int selectedRow = employeeTable.getSelectedRow();
+        if (selectedRow != -1) {
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove this user?", "Confirm Removal", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                String id = (String) tableModel.getValueAt(selectedRow, 0);
+                removeUserFromDatabase(id);
+                tableModel.removeRow(selectedRow);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a user to remove.");
+        }
+    }
+
+    private void removeUserFromDatabase(String id) {
+        String sqlDelete = "DELETE FROM users WHERE id=?";
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
+             PreparedStatement statement = connection.prepareStatement(sqlDelete)) {
+            statement.setString(1, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateTableBasedOnRole() {
+        String selectedRole = (String) roleOptions.getSelectedItem();
+        loadUsersFromDatabase(selectedRole);
+    }
+
+    private void back() {
+        setVisible(false);
+        managerFrame.setVisible(true);
+    }
+}
