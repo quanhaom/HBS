@@ -1,0 +1,105 @@
+package frame;
+
+import java.awt.BorderLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import model.Employee;
+import services.Store;
+
+public class EmployeeFrame extends BaseFrame {
+
+    private LoginFrame loginFrame;
+    private JLabel greetingLabel;
+    private String Name;
+    private String userId;
+    private Employee employee;
+
+    // Add fields to track login and logout times
+    private LocalDateTime loginTime;
+    private LocalDateTime logoutTime;
+
+    public EmployeeFrame(Store store, LoginFrame loginFrame, String userId, String Name) {
+        super(store);
+        this.loginFrame = loginFrame;
+        this.userId = userId;
+        this.Name = Name;
+        this.loginTime = LocalDateTime.now();
+        setTitle("Employee Frame");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        JPanel greetingPanel = new JPanel();
+        if (Name != null) {
+            greetingLabel = new JLabel("Hello, " + Name);
+            greetingPanel.add(greetingLabel);
+            greetingLabel.addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) {
+                    showGreetingOptions();
+                }
+            });
+        }
+
+        JPanel buttonPanel = new JPanel();
+        JButton addProductButton = new JButton("Add Product");
+        JButton editProductButton = new JButton("Edit Product");
+        JButton removeProductButton = new JButton("Remove Product");
+
+        buttonPanel.add(addProductButton);
+        buttonPanel.add(editProductButton);
+        buttonPanel.add(removeProductButton);
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.add(greetingPanel, BorderLayout.NORTH);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        add(mainPanel, BorderLayout.SOUTH);
+
+        // Action listeners delegate to Employee class
+        addProductButton.addActionListener(e -> employee.addProduct());
+        editProductButton.addActionListener(e -> employee.editProduct());
+        removeProductButton.addActionListener(e -> employee.removeProduct());
+
+        loadProducts();
+    }
+
+    // Only display logic
+    private void loadProducts() {
+        displayAllProducts();  // Loads the products onto the UI
+    }
+
+    private void logout() {
+        logoutTime = LocalDateTime.now();
+        long durationInMinutes = ChronoUnit.MINUTES.between(loginTime, logoutTime);
+        double durationInHours = durationInMinutes / 60.0;
+        long durationToUpdate = Math.round(durationInHours);
+        store.updateWorkingHours(userId, durationToUpdate);
+        setVisible(false);
+        loginFrame.setVisible(true);
+    }
+
+    private void showGreetingOptions() {
+        String[] options = {"Log out", "Edit Profile"};
+        int choice = JOptionPane.showOptionDialog(this, "Choose an option:", "Options",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+
+        if (choice == 0) {
+            logout();
+        } else if (choice == 1) {
+            openEditProfile();
+        }
+    }
+
+    public void openEditProfile() {
+        new EditPro5(userId);  // Opens profile editing frame
+    }
+}

@@ -1,0 +1,93 @@
+package frame;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import services.Store;
+
+public class ManagerFrame extends EmployeeFrame {
+    private Store store; 
+    private LoginFrame loginFrame;
+    private JLabel greetingLabel;
+    private String Name;// Greeting label to display the manager's name
+
+    public ManagerFrame(Store store, LoginFrame loginFrame, String Name) { 
+        this.store = store;
+        this.loginFrame = loginFrame;
+        this.Name= name;
+
+        setTitle("Manager Frame");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        JPanel greetingPanel = new JPanel();  // Panel to hold the greeting label
+        greetingLabel = new JLabel("Hello, " + Name);
+        greetingPanel.add(greetingLabel);
+
+        JPanel buttonPanel = new JPanel();
+        JButton productsButton = new JButton("Products");
+        JButton employeesButton = new JButton("Users");
+        JButton storeButton = new JButton("Store");
+        JButton logoutButton = new JButton("Logout");
+
+        buttonPanel.add(productsButton);
+        buttonPanel.add(employeesButton);
+        buttonPanel.add(storeButton);
+        buttonPanel.add(logoutButton);
+        add(greetingPanel, BorderLayout.NORTH);  // Add greeting panel to the frame
+        add(buttonPanel, BorderLayout.CENTER);
+
+        logoutButton.addActionListener(e -> logout());
+        productsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showProducts();
+            }
+        });
+
+        employeesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showEmployees();
+            }
+        });
+
+        storeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showStore();
+            }
+        });
+    }
+
+    private void showProducts() {
+        ProductFrame productFrame = new ProductFrame(store, this);
+        productFrame.setVisible(true);
+        this.setVisible(false);
+    }
+
+    private void showEmployees() {
+        EmpmanaFrame empmanaFrame = new EmpmanaFrame(this);
+        empmanaFrame.setVisible(true);
+        this.setVisible(false);
+    }
+
+    private void showStore() {
+        JOptionPane.showMessageDialog(this, "Store Information");
+    }
+
+    private void logout() {
+        setVisible(false);
+        loginFrame.setVisible(true);
+    }
+
+}

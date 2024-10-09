@@ -38,7 +38,7 @@ public abstract class BaseFrame extends JFrame {
     protected JTextField searchField;
     protected JLabel suggestionLabel;
     protected JComboBox<String> sortOptions;
-    protected JLabel timeLabel;  // JLabel for displaying the time
+    protected JLabel timeLabel; 
     protected static final int WIDTH = 1285;
     protected static final int HEIGHT = 900;
 
@@ -86,15 +86,12 @@ public abstract class BaseFrame extends JFrame {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(searchPanel, BorderLayout.NORTH);
 
-        // Add JLabel for time
         timeLabel = new JLabel();
         timeLabel.setHorizontalAlignment(JLabel.CENTER);
         topPanel.add(timeLabel, BorderLayout.SOUTH);
 
-        // Add the combined panel to the frame
         add(topPanel, BorderLayout.NORTH);
 
-        // ... (rest of your constructor code)
 
 
         String[] columnNames = { "ID", "Type", "Name", "Price", "Quantity", "Brand", "Suit Age", "Material", "Author", "ISBN", "Publication Year", "Publisher" };
