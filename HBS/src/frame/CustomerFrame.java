@@ -6,7 +6,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,9 +23,11 @@ public class CustomerFrame extends BaseFrame {
     private List<Product> cart;
     private JLabel greetingLabel;
     private String userId;
+    private LoginFrame loginFrame;
 
     public CustomerFrame(Store store, LoginFrame loginFrame, String userId, String Name) { 
         super(store);  
+        this.loginFrame = loginFrame;
         this.cart = new ArrayList<>();  
         this.userId = userId;
         setTitle("Customer Frame");
@@ -112,10 +116,17 @@ public class CustomerFrame extends BaseFrame {
 
         if (selectedRow != -1) {
             String productId = (String) tableModel.getValueAt(selectedRow, 0);
-            
+            for (Product product : cart) {
+                if (product.getId().equals(productId)) {
+                    product.setQuantity(product.getQuantity() + 1);
+                    JOptionPane.showMessageDialog(this, product.getName() + " quantity increased to " + product.getQuantity());
+                    return; 
+                }
+            }
             for (Product product : store.getProducts()) {
                 if (product.getId().equals(productId)) {
-                    cart.add(product);
+                    Product newProduct = new Product(product.getId(), product.getName(), product.getPrice(), 1, product.getInputPrice());
+                    cart.add(newProduct);
                     JOptionPane.showMessageDialog(this, product.getName() + " has been added to your cart.");
                     return;
                 }
@@ -134,10 +145,13 @@ public class CustomerFrame extends BaseFrame {
 
         StringBuilder cartContents = new StringBuilder("Your Cart:\n");
         for (Product product : cart) {
-            cartContents.append(String.format("%s - Price: %.2f\n", product.getName(), product.getPrice()));
+            cartContents.append(String.format("%s - Price: %.2f - Quantity: %d\n", 
+                product.getName(), product.getPrice(), product.getQuantity()));
         }
+
         JOptionPane.showMessageDialog(this, cartContents.toString());
     }
+
     private void checkout() {
         if (cart.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Your cart is empty.");
@@ -146,25 +160,38 @@ public class CustomerFrame extends BaseFrame {
 
         StringBuilder checkoutSummary = new StringBuilder("You have checked out:\n");
         for (Product product : cart) {
-            int currentQuantity = product.getQuantity();
-            if (currentQuantity <= 0) {
-                JOptionPane.showMessageDialog(this, "Cannot check out " + product.getName() + " due to insufficient stock.");
-                return;
+            String productId = product.getId();
+            int quantityToCheckout = product.getQuantity();
+
+            for (Product storeProduct : store.getProducts()) {
+                if (storeProduct.getId().equals(productId)) {
+                    int currentStock = storeProduct.getQuantity();
+
+                    if (currentStock < quantityToCheckout) {
+                        JOptionPane.showMessageDialog(this, "Cannot check out " + quantityToCheckout + " of " + product.getName() + " due to insufficient stock.");
+                        return;
+                    }
+                    storeProduct.setQuantity(currentStock - quantityToCheckout);
+                    store.updateProductQuantity(storeProduct.getId(), currentStock - quantityToCheckout);
+                    double profit = storeProduct.getPrice() - storeProduct.getInputPrice();
+                    store.insertProductChangeHistory(storeProduct.getName(), storeProduct.getInputPrice(), storeProduct.getPrice(), profit, "sell", quantityToCheckout);
+
+                    checkoutSummary.append(String.format("%s - Price: %.2f - Quantity: %d\n", 
+                        storeProduct.getName(), storeProduct.getPrice(), quantityToCheckout));
+                    break; 
+                }
             }
-            int newQuantity = currentQuantity - 1; 
-            product.setQuantity(newQuantity);
-            store.updateProductQuantity(product.getId(), newQuantity);
-            checkoutSummary.append(String.format("%s - Price: %.2f\n", product.getName(), product.getPrice()));
         }
 
         JOptionPane.showMessageDialog(this, checkoutSummary.toString());
-        cart.clear(); 
+        cart.clear();
         displayAllProducts();
     }
 
 
     private void logout() {
         this.dispose();
+        loginFrame.setVisible(true);
     }
     private void showLogout() {
         int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to log out?", "Logout Confirmation",

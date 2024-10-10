@@ -31,7 +31,7 @@ public class Manager extends Employee {
         String sqlMaxId = "SELECT MAX(id) FROM users";
         String id = "1";
 
-        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@")) {
+        try (Connection connection = new MySQLConnection().getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(sqlMaxId);
                  ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {

@@ -1,0 +1,132 @@
+package model;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+
+import javax.swing.JOptionPane;
+
+import services.MySQLConnection;
+
+public class Employee extends Person {
+    private double salary1;
+    private double salary2;
+    private double salary3;
+    private String dob;
+    private String phone;
+    private String idCard;
+    private int workingHours;
+    private Connection connection;
+
+    public Employee(String id, String username, String password, String name, String role, String dob, String phone, String idCard, int workingHours, double salary1, double salary2, double salary3) {
+        super(id, username, password, name, role);
+        this.dob = dob;
+        this.phone = phone;
+        this.idCard = idCard;
+        this.workingHours = workingHours;
+        this.salary1 = salary1;
+
+        try {
+            this.connection = new MySQLConnection().getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public String getDob() {
+        return dob;
+    }
+
+    public void setDob(String dob) {
+        this.dob = dob;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getIdCard() {
+        return idCard;
+    }
+
+    public void setIdCard(String idCard) {
+        this.idCard = idCard;
+    }
+
+    public int getWorkingHours() {
+        return workingHours;
+    }
+
+    public void setWorkingHours(int workingHours) {
+        this.workingHours = workingHours;
+    }
+
+    public double getSalary1() {
+        return salary1;
+    }
+
+    public double getSalary2() {
+        return salary2;
+    }
+
+    public double getSalary3() {
+        return salary3;
+    }
+    private void addProductToDatabase() {
+        String[] types = {"Book", "Toy", "Stationery"};
+        String type = (String) JOptionPane.showInputDialog(this, "Select Product Type:", "Product Selection",
+                JOptionPane.QUESTION_MESSAGE, null, types, types[0]);
+
+        String name = JOptionPane.showInputDialog(this, "Enter Product Name:");
+        String priceStr = JOptionPane.showInputDialog(this, "Enter Product Price:");
+        String quantityStr = JOptionPane.showInputDialog(this, "Enter Quantity:");
+        String inputpriceStr = JOptionPane.showInputDialog(this, "Enter Input Price:");
+
+        if (name != null && priceStr != null && quantityStr != null && type != null) {
+            try {
+                double price = Double.parseDouble(priceStr);
+                int quantity = Integer.parseInt(quantityStr);
+                double inputprice = Double.parseDouble(inputpriceStr);
+                Product product = null;
+
+                switch (type) {
+                    case "Book":
+                        String author = JOptionPane.showInputDialog(this, "Enter Author:");
+                        String publisher = JOptionPane.showInputDialog(this, "Enter Publisher:");
+                        String isbn = JOptionPane.showInputDialog(this, "Enter ISBN:");
+                        int publicationYear = Integer.parseInt(JOptionPane.showInputDialog(this, "Enter Publication Year:"));
+                        product = new Book(String.valueOf(store.getNextProductId()), name, price, quantity, inputprice, author, isbn, publicationYear, publisher);
+                        break;
+                    case "Toy":
+                        String brand = JOptionPane.showInputDialog(this, "Enter Brand:");
+                        String material = JOptionPane.showInputDialog(this, "Enter Material:");
+                        int suitage = Integer.parseInt(JOptionPane.showInputDialog(this, "Enter Suitable Age:"));
+                        product = new Toy(String.valueOf(store.getNextProductId()), name, price, quantity, inputprice, brand, suitage, material);
+                        break;
+                    case "Stationery":
+                        String brandsta = JOptionPane.showInputDialog(this, "Enter Brand:");
+                        String materialsta = JOptionPane.showInputDialog(this, "Enter Material:");
+                        product = new Stationery(String.valueOf(store.getNextProductId()), name, price, quantity, inputprice, brandsta, materialsta);
+                        break;
+                    default:
+                        JOptionPane.showMessageDialog(this, "Invalid product type.");
+                        return;
+                }
+
+                // Add product to the database
+                store.addProduct(product);
+                loadProducts();
+                JOptionPane.showMessageDialog(this, "Product added successfully.");
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid input for price or quantity.");
+            }
+        }
+    }
+
+    
+}

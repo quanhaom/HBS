@@ -4,6 +4,8 @@ import java.awt.GridLayout;
 import java.sql.*;
 import javax.swing.*;
 
+import services.MySQLConnection;
+
 public class EditPro5 extends JFrame {
     private JTextField idField, usernameField, passwordField, nameField, dobField, phoneField, idCardField, pointField, roleField;
     private JButton applyButton, cancelButton;
@@ -71,7 +73,7 @@ public class EditPro5 extends JFrame {
     }
 
     private void loadUserInfo() {
-        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
+        try (Connection connection = new MySQLConnection().getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE id = ?")) {
             statement.setString(1, userId);
             ResultSet resultSet = statement.executeQuery();
@@ -135,7 +137,7 @@ public class EditPro5 extends JFrame {
             return;
         }
         
-        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@");
+        try (Connection connection = new MySQLConnection().getConnection();
              PreparedStatement statement = connection.prepareStatement("UPDATE users SET username=?, password=?, name=?, dob=?, phone=?, id_card=? WHERE id=?")) {
             statement.setString(1, username);
             statement.setString(2, password);

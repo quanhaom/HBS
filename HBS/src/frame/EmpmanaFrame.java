@@ -113,8 +113,6 @@ public class EmpmanaFrame extends JFrame {
         
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             String id = (String) tableModel.getValueAt(i, 0);
-            
-            // Use MySQLConnection to get the connection
             try (Connection connection = new MySQLConnection().getConnection();
                  Statement statement = connection.createStatement()) {
                 

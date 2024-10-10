@@ -6,8 +6,8 @@ public class Book extends Product {
 	private int publicationYear; 
 	private String publisher; 
 
-	public Book(String id, String name, double price, int quantity, String author, String isbn, int publicationYear, String publisher) {
-		super(id, name, price, quantity);
+	public Book(String id, String name, double price, int quantity, double inputprice, String author, String isbn, int publicationYear, String publisher) {
+		super(id, name, price, quantity,inputprice);
 		this.author = author;
 		this.isbn = isbn;
 		this.publicationYear = publicationYear; 

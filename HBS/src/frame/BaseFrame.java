@@ -80,7 +80,6 @@ public abstract class BaseFrame extends JFrame {
         suggestionLabel = new JLabel();
         searchPanel.add(suggestionLabel, gbc);
 
-        // Create a new JPanel to hold both the searchPanel and timeLabel
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(searchPanel, BorderLayout.NORTH);
 
@@ -92,18 +91,19 @@ public abstract class BaseFrame extends JFrame {
 
 
 
-        String[] columnNames = { "ID", "Type", "Name", "Price", "Quantity", "Brand", "Suit Age", "Material", "Author", "ISBN", "Publication Year", "Publisher" };
+        String[] columnNames = { "ID", "Type", "Name", "Price", "Quantity","Input Price", "Brand", "Suit Age", "Material", "Author", "ISBN", "Publication Year", "Publisher" };
         tableModel = new DefaultTableModel(columnNames, 0);
         productTable = new JTable(tableModel);
         
         productTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         productTable.setFillsViewportHeight(true); 
 
-        int[] columnWidths = {20, 60, 300, 50, 50, 100, 60, 75, 100, 100, 125, 225}; 
+        int[] columnWidths = {20, 60, 300, 50, 50,0, 100, 60, 75, 100, 100, 125, 225}; 
         for (int i = 0; i < columnWidths.length; i++) {
             TableColumn column = productTable.getColumnModel().getColumn(i);
             column.setPreferredWidth(columnWidths[i]); 
             column.setResizable(true); 
+           
         }
 
         add(new JScrollPane(productTable), BorderLayout.CENTER);
@@ -152,31 +152,35 @@ public abstract class BaseFrame extends JFrame {
             String[] rowData = getProductRowData(product);
             tableModel.addRow(rowData);
         }
+        TableColumn inputPriceColumn = productTable.getColumnModel().getColumn(5);
+        inputPriceColumn.setMinWidth(0);
+        inputPriceColumn.setMaxWidth(0);
+        inputPriceColumn.setPreferredWidth(0);
     }
 
     protected String[] getProductRowData(Product product) {
-        String type = getProductType(product); 
+        String type = getProductType(product);
 
         if (product instanceof Book) {
             Book book = (Book) product;
             return new String[] {
-                book.getId(), type, book.getName(), String.format("%.2f", book.getPrice()), String.valueOf(book.getQuantity()),
-                "", "","", book.getAuthor(), book.getIsbn(), String.valueOf(book.getPublicationYear()), book.getPublisher() 
+                book.getId(), type, book.getName(), String.format("%.2f", book.getPrice()), String.valueOf(book.getQuantity()), String.valueOf(book.getInputPrice()),
+                "", "", "", book.getAuthor(), book.getIsbn(), String.valueOf(book.getPublicationYear()), book.getPublisher()
             };
         } else if (product instanceof Toy) {
             Toy toy = (Toy) product;
             return new String[] {
-                toy.getId(), type, toy.getName(), String.format("%.2f", toy.getPrice()), String.valueOf(toy.getQuantity()),
+                toy.getId(), type, toy.getName(), String.format("%.2f", toy.getPrice()), String.valueOf(toy.getQuantity()), String.valueOf(toy.getInputPrice()),
                 toy.getBrand(), String.valueOf(toy.getSuitAge()), toy.getMaterial(), "", "", ""
             };
         } else if (product instanceof Stationery) {
             Stationery stationery = (Stationery) product;
             return new String[] {
-                stationery.getId(), type, stationery.getName(), String.format("%.2f", stationery.getPrice()), String.valueOf(stationery.getQuantity()),
+                stationery.getId(), type, stationery.getName(), String.format("%.2f", stationery.getPrice()), String.valueOf(stationery.getQuantity()), String.valueOf(stationery.getInputPrice()),
                 stationery.getBrand(), "", stationery.getMaterial(), "", "", ""
             };
         }
-        return new String[] { "Unknown", "", "", "", "", "", "", "", "", "", "" };
+        return new String[] { "Unknown", "", "", "", "", "", "", "", "", "", "", "", "" };
     }
 
     protected List<Product> sortProducts(List<Product> products) {

@@ -80,7 +80,7 @@ public class LoginFrame extends JFrame {
         List<Person> users = store.getUsers(); 
         for (Person user : users) {
             if (user.getUsername().equals(username) && user.getPassword().equals(password)) { 
-                String name = user.getName(); // Get the user's name
+                String name = user.getName();
                 switch (user.getRole()) {
                     case "Employee":
                         new EmployeeFrame(store, this,user.getId(), name).setVisible(true);

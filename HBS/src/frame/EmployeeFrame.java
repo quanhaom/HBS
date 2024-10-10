@@ -5,14 +5,17 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.table.TableColumn;
 
 import model.Book;
+import model.Employee;
 import model.Product;
 import model.Stationery;
 import model.Toy;
@@ -22,20 +25,19 @@ public class EmployeeFrame extends BaseFrame {
 
     private LoginFrame loginFrame;
     private JLabel greetingLabel;
-    private String Name;
     private String userId;
-
-    // Add fields to track login and logout times
     private LocalDateTime loginTime;
     private LocalDateTime logoutTime;
+    protected static final int WIDTH = 1385;
+    protected static final int HEIGHT = 900;
+    
 
     public EmployeeFrame(Store store, LoginFrame loginFrame, String userId, String Name) {
         super(store);
         this.loginFrame = loginFrame;
+        setSize(WIDTH, HEIGHT);
         this.userId = userId;
-        this.Name = Name;
         this.loginTime = LocalDateTime.now();
-        System.out.print(loginTime);
         setTitle("Employee Frame");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -67,7 +69,6 @@ public class EmployeeFrame extends BaseFrame {
 
         add(mainPanel, BorderLayout.SOUTH);
 
-        // Action listeners
         addProductButton.addActionListener(e -> addProduct());
         editProductButton.addActionListener(e -> editProduct());
         removeProductButton.addActionListener(e -> removeProduct());
@@ -83,11 +84,13 @@ public class EmployeeFrame extends BaseFrame {
         String name = JOptionPane.showInputDialog(this, "Enter Product Name:");
         String priceStr = JOptionPane.showInputDialog(this, "Enter Product Price:");
         String quantityStr = JOptionPane.showInputDialog(this, "Enter Quantity:");
+        String inputpriceStr = JOptionPane.showInputDialog(this, "Enter Input Price:");
 
         if (name != null && priceStr != null && quantityStr != null && type != null) {
             try {
                 double price = Double.parseDouble(priceStr);
                 int quantity = Integer.parseInt(quantityStr);
+                double inputprice =  Double.parseDouble(inputpriceStr);
                 Product product = null;
 
                 int id = store.getNextProductId();
@@ -98,25 +101,25 @@ public class EmployeeFrame extends BaseFrame {
                         String publisher = JOptionPane.showInputDialog(this, "Enter Publisher:");
                         String isbn = JOptionPane.showInputDialog(this, "Enter ISBN:");
                         int publicationYear = Integer.parseInt(JOptionPane.showInputDialog(this, "Enter Publication Year:"));
-                        product = new Book(String.valueOf(id), name, price, quantity, author, isbn, publicationYear, publisher);
+                        product = new Book(String.valueOf(id), name, price, quantity,inputprice, author, isbn, publicationYear, publisher);
                         break;
                     case "Toy":
                         String brand = JOptionPane.showInputDialog(this, "Enter Brand:");
                         String material = JOptionPane.showInputDialog(this, "Enter Material:");
                         int suitage = Integer.parseInt(JOptionPane.showInputDialog(this, "Enter Suitable Age:"));
-                        product = new Toy(String.valueOf(id), name, price, quantity, brand, suitage, material);
+                        product = new Toy(String.valueOf(id), name, price, quantity,inputprice, brand, suitage, material);
                         break;
                     case "Stationery":
                         String brandsta = JOptionPane.showInputDialog(this, "Enter Brand:");
                         String materialsta = JOptionPane.showInputDialog(this, "Enter Material:");
-                        product = new Stationery(String.valueOf(id), name, price, quantity, brandsta, materialsta);
+                        product = new Stationery(String.valueOf(id), name, price, quantity,inputprice, brandsta, materialsta);
                         break;
                     default:
                         JOptionPane.showMessageDialog(this, "Invalid product type.");
                         return;
                 }
 
-                store.addProduct(product);
+                store.addProduct(product,quantity);
                 loadProducts();
                 JOptionPane.showMessageDialog(this, "Product added successfully.");
             } catch (NumberFormatException e) {
@@ -144,12 +147,13 @@ public class EmployeeFrame extends BaseFrame {
         String newName = JOptionPane.showInputDialog(this, "Enter new Product Name:", existingProduct.getName());
         String newPriceStr = JOptionPane.showInputDialog(this, "Enter new Product Price:", existingProduct.getPrice());
         String newQuantityStr = JOptionPane.showInputDialog(this, "Enter new Quantity:", existingProduct.getQuantity());
+        String newInputPriceStr = JOptionPane.showInputDialog(this, "Enter new Input Price:", existingProduct.getInputPrice());
 
         if (newName != null && newPriceStr != null && newQuantityStr != null) {
             try {
                 double newPrice = Double.parseDouble(newPriceStr);
                 int newQuantity = Integer.parseInt(newQuantityStr);
-
+                double newInputPrice = Double.parseDouble(newInputPriceStr);
                 existingProduct.setName(newName);
                 existingProduct.setPrice(newPrice);
                 existingProduct.setQuantity(newQuantity);
@@ -203,7 +207,7 @@ public class EmployeeFrame extends BaseFrame {
         }
 
         String id = (String) tableModel.getValueAt(selectedRow, 0);
-        String name = (String) tableModel.getValueAt(selectedRow, 1);
+        String name = (String) tableModel.getValueAt(selectedRow, 2);
 
         int confirmation = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove " + name + "?", "Confirm Removal", JOptionPane.YES_NO_OPTION);
         if (confirmation == JOptionPane.YES_OPTION) {
@@ -215,10 +219,8 @@ public class EmployeeFrame extends BaseFrame {
 
     private void logout() {
         logoutTime = LocalDateTime.now();
-        System.out.print("Logout Time: " + logoutTime);
         long durationInMinutes = ChronoUnit.MINUTES.between(loginTime, logoutTime);
         double durationInHours = durationInMinutes;
-        System.out.print("Duration in hours: " + durationInHours);
         long durationToUpdate = Math.round(durationInHours);
         store.updateWorkingHours(userId, durationToUpdate);
         setVisible(false);
@@ -243,5 +245,21 @@ public class EmployeeFrame extends BaseFrame {
 
     public void openEditProfile() {
         new EditPro5(userId);
+    }
+    @Override
+    protected void displayAllProducts() {
+        tableModel.setRowCount(0);  
+
+        List<Product> products = store.getProducts();
+        products = sortProducts(products);
+
+        for (Product product : products) {
+            String[] rowData = getProductRowData(product);
+            tableModel.addRow(rowData);
+        }
+        TableColumn inputPriceColumn = productTable.getColumnModel().getColumn(5);
+        inputPriceColumn.setMinWidth(50);
+        inputPriceColumn.setMaxWidth(200);
+        inputPriceColumn.setPreferredWidth(100);
     }
 }

@@ -1,8 +1,5 @@
 package model;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 public class Person {
     private String id;
@@ -10,8 +7,6 @@ public class Person {
     private String password;
     private String name;
     private String role;
-
-    // Constructor to initialize a Person object
     public Person(String id, String username, String password, String name, String role) {
         this.id = id;
         this.username = username; 

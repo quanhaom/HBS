@@ -2,6 +2,7 @@ package frame;
 
 import javax.swing.*;
 
+import services.MySQLConnection;
 import services.Store;
 
 import java.awt.*;
@@ -105,7 +106,7 @@ public class SignUpFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Phone number must start with 0.", "Error", JOptionPane.ERROR_MESSAGE);
 
         }
-        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/hbs_db", "root", "iuhuyenlemleM0@")) {
+        try (Connection connection = new MySQLConnection().getConnection()) {
             String sqlCheck = "SELECT COUNT(*) FROM users WHERE username = ?";
             try (PreparedStatement checkStatement = connection.prepareStatement(sqlCheck)) {
                 checkStatement.setString(1, username);
